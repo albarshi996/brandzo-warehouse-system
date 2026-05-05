@@ -2,7 +2,6 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 // Firebase configuration for Brandzo ERP
-// Replace the placeholder values with your actual Firebase project configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAWhqQVdhODZT0bdXnbyYzcmpnv11s9qoU",
   authDomain: "brandzo-erp-2026.firebaseapp.com",
