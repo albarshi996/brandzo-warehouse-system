@@ -4,12 +4,12 @@ import { getFirestore } from "firebase/firestore";
 // Firebase configuration for Brandzo ERP
 // Replace the placeholder values with your actual Firebase project configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAWhqQVdhODZT0bdXnbyYzcmpnv11s9qoU",
+  authDomain: "brandzo-erp-2026.firebaseapp.com",
+  projectId: "brandzo-erp-2026",
+  storageBucket: "brandzo-erp-2026.firebasestorage.app",
+  messagingSenderId: "991460523040",
+  appId: "1:991460523040:web:d3c6f76b1ff13a1ab8d045"
 };
 
 // Initialize Firebase
