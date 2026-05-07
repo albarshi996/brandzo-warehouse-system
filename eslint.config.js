@@ -11,6 +11,7 @@ export default [
       '.astro/',
       'node_modules/',
       'public/forms/',
+      'public/lib/',
       'public/Brandzo_Operational_Guide.html',
     ],
   },
