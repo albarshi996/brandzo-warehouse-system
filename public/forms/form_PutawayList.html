@@ -355,8 +355,9 @@
     </script>
 
     <!-- ============================================================
-         BRANDZO BARCODE SCANNER (uses html5-qrcode CDN; lazy-loaded
-         only when the user clicks a scan button).
+         BRANDZO BARCODE SCANNER — local html5-qrcode bundle with CDN
+         fallback, explicit camera permission probe, and Arabic
+         per-error messages. Hidden on print.
          ============================================================ -->
     <div class="scan-modal no-print" id="brandzoScanModal" aria-hidden="true">
         <div class="scan-modal__panel" role="dialog" aria-label="ماسح الباركود">
@@ -376,54 +377,149 @@
             var cancelBtn = document.getElementById('brandzoScanCancel');
             if (!modal || !viewport || !cancelBtn) return;
 
+            // The library is bundled with the site so we don't depend on a
+            // working CDN connection from the user's mobile network.
+            // Forms live at /<base>/forms/*.html, the lib lives at
+            // /<base>/lib/html5-qrcode.min.js — so a relative ../lib/ URL
+            // works regardless of the deployment base path.
+            var LOCAL_URL = '../lib/html5-qrcode.min.js';
+            var CDN_URL = 'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
+
             var libPromise = null;
             var html5QrInstance = null;
             var targetInput = null;
+
+            function loadScript(url) {
+                return new Promise(function (resolve, reject) {
+                    var s = document.createElement('script');
+                    s.src = url;
+                    s.async = true;
+                    s.onload = function () {
+                        if (window.Html5Qrcode) resolve();
+                        else reject(new Error('LIB_LOADED_BUT_GLOBAL_MISSING'));
+                    };
+                    s.onerror = function () {
+                        s.remove();
+                        reject(new Error('SCRIPT_LOAD_FAILED:' + url));
+                    };
+                    document.head.appendChild(s);
+                });
+            }
 
             function loadLib() {
                 if (libPromise) return libPromise;
                 libPromise = new Promise(function (resolve, reject) {
                     if (window.Html5Qrcode) return resolve();
-                    var s = document.createElement('script');
-                    s.src = 'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.10/html5-qrcode.min.js';
-                    s.onload = function () { resolve(); };
-                    s.onerror = function () { reject(new Error('فشل تحميل ماسح الباركود')); };
-                    document.head.appendChild(s);
+                    loadScript(LOCAL_URL).then(resolve).catch(function () {
+                        // Local bundle missing or blocked — try the public CDN.
+                        loadScript(CDN_URL).then(resolve).catch(function () {
+                            reject(new Error('فشل تحميل ماسح الباركود. تأكد من الاتصال بالإنترنت.'));
+                        });
+                    });
                 });
                 return libPromise;
             }
 
+            /**
+             * Map a DOMException / Error from getUserMedia or html5-qrcode
+             * to an Arabic message the user can act on.
+             */
+            function arabicErrorMessage(err) {
+                if (!err) return 'تعذر فتح ماسح الباركود.';
+                var name = err.name || '';
+                var msg = err.message || String(err);
+                if (name === 'NotAllowedError' || /Permission denied|denied/i.test(msg)) {
+                    return 'تعذر الوصول للكاميرا. يرجى التأكد من السماح للمتصفح باستخدام الكاميرا من الإعدادات.';
+                }
+                if (name === 'NotFoundError' || name === 'OverconstrainedError') {
+                    return 'لم يتم العثور على كاميرا في هذا الجهاز.';
+                }
+                if (name === 'NotReadableError' || name === 'AbortError') {
+                    return 'الكاميرا قيد الاستخدام من تطبيق آخر. أغلق التطبيقات الأخرى ثم حاول مجدداً.';
+                }
+                if (name === 'SecurityError') {
+                    return 'لا يمكن الوصول للكاميرا. يجب فتح الصفحة عبر اتصال آمن (HTTPS).';
+                }
+                if (msg && msg.indexOf('فشل تحميل') === 0) {
+                    return msg;
+                }
+                if (msg === 'NOT_SUPPORTED' ||
+                    !navigator.mediaDevices ||
+                    !navigator.mediaDevices.getUserMedia) {
+                    return 'هذا المتصفح لا يدعم الوصول للكاميرا. جرب متصفحاً آخر مثل Chrome أو Safari.';
+                }
+                return 'تعذر فتح الكاميرا: ' + msg;
+            }
+
+            function showError(text) {
+                viewport.innerHTML =
+                    '<div style="padding:18px 14px;color:#fff;text-align:center;line-height:1.7;font-family:Cairo,sans-serif;">' +
+                    '<div style="font-size:0.95rem;font-weight:700;margin-bottom:6px;">' + text + '</div>' +
+                    '</div>';
+            }
+
+            function showLoading() {
+                viewport.innerHTML =
+                    '<div style="padding:24px 14px;color:#fff;text-align:center;font-family:Cairo,sans-serif;">' +
+                    '<div style="font-size:0.92rem;">جارٍ تشغيل الكاميرا…</div>' +
+                    '</div>';
+            }
+
+            /**
+             * Explicitly request camera access so the browser permission
+             * prompt fires deterministically and we get the specific
+             * DOMException name on rejection. The probe stream is stopped
+             * immediately so html5-qrcode can claim the device cleanly.
+             */
+            function probeCamera() {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    return Promise.reject(Object.assign(new Error('NOT_SUPPORTED'), {
+                        name: 'SecurityError',
+                    }));
+                }
+                return navigator.mediaDevices
+                    .getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
+                    .then(function (stream) {
+                        stream.getTracks().forEach(function (t) { t.stop(); });
+                    });
+            }
+
+            function startScanner() {
+                viewport.innerHTML = '<div id="brandzoScanCam" style="width:100%;"></div>';
+                try {
+                    html5QrInstance = new window.Html5Qrcode('brandzoScanCam');
+                } catch (e) {
+                    showError(arabicErrorMessage(e));
+                    return;
+                }
+                html5QrInstance.start(
+                    { facingMode: 'environment' },
+                    { fps: 10, qrbox: { width: 250, height: 200 } },
+                    function (decodedText) { handleResult(decodedText); },
+                    function () { /* per-frame scan failures — ignore */ }
+                ).catch(function (err) {
+                    showError(arabicErrorMessage(err));
+                });
+            }
+
             function openModal(input) {
                 targetInput = input;
-                viewport.innerHTML = '<div id="brandzoScanCam" style="width:100%;"></div>';
+                showLoading();
                 modal.classList.add('is-open');
                 modal.setAttribute('aria-hidden', 'false');
-                loadLib().then(function () {
-                    try {
-                        html5QrInstance = new window.Html5Qrcode('brandzoScanCam');
-                        html5QrInstance.start(
-                            { facingMode: 'environment' },
-                            { fps: 10, qrbox: { width: 250, height: 200 } },
-                            function (decodedText) { handleResult(decodedText); },
-                            function () { /* per-frame errors are noisy; ignore */ }
-                        ).catch(function (err) {
-                            viewport.innerHTML = '<div style="padding:14px;color:#fff;text-align:center;">' +
-                                '<div>تعذّر فتح الكاميرا.</div>' +
-                                '<div style="font-size:0.78rem;margin-top:6px;opacity:0.7;">' + (err && err.message ? err.message : err) + '</div></div>';
-                        });
-                    } catch (e) {
-                        viewport.innerHTML = '<div style="padding:14px;color:#fff;text-align:center;">' + (e && e.message ? e.message : e) + '</div>';
-                    }
-                }).catch(function (err) {
-                    viewport.innerHTML = '<div style="padding:14px;color:#fff;text-align:center;">' + err.message + '</div>';
-                });
+                loadLib()
+                    .then(probeCamera)
+                    .then(startScanner)
+                    .catch(function (err) {
+                        showError(arabicErrorMessage(err));
+                    });
             }
 
             function closeModal() {
                 modal.classList.remove('is-open');
                 modal.setAttribute('aria-hidden', 'true');
                 if (html5QrInstance) {
-                    try { html5QrInstance.stop().catch(function () {}); } catch (e) {}
+                    try { html5QrInstance.stop().catch(function () {}); } catch (e) { /* noop */ }
                     html5QrInstance = null;
                 }
                 viewport.innerHTML = '';
@@ -439,9 +535,12 @@
             }
 
             cancelBtn.addEventListener('click', closeModal);
-            modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
-            document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal(); });
-
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) closeModal();
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+            });
             document.body.addEventListener('click', function (e) {
                 var btn = e.target.closest && e.target.closest('.scan-btn');
                 if (!btn) return;
