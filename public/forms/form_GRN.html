@@ -341,12 +341,45 @@
         }
 
         /* Checkboxes and inline forms – preserving original functionality */
-        .check-row { display: flex; align-items: center; gap: 10px; padding: 6px 0;
+        .check-row { display: flex; align-items: center; gap: 10px; padding: 6px 4px;
             border-bottom: 1px solid #eee; }
-        .check-row .chk-box { width: 18px; height: 18px; border: 2px solid #333;
-            flex-shrink: 0; }
-        .check-row .chk-na { font-size: 0.7rem; color: #777; min-width: 30px;
-            text-align: center; }
+        .check-row .qc-main { display: flex; align-items: center; gap: 10px;
+            flex: 1; cursor: pointer; min-width: 0; }
+        .check-row .qc-main input[type="checkbox"] { width: 18px; height: 18px;
+            accent-color: var(--orange); cursor: pointer; flex-shrink: 0; }
+        .check-row .qc-main:has(input:checked) .qc-label { color: var(--orange); font-weight: 700; }
+        .check-row .qc-label { flex: 1; min-width: 0; word-break: break-word; }
+        .check-row .qc-na { display: flex; align-items: center; gap: 4px;
+            font-size: 0.72rem; color: #555; cursor: pointer; min-width: 50px;
+            justify-content: center; }
+        .check-row .qc-na input[type="checkbox"] { width: 14px; height: 14px;
+            accent-color: #888; cursor: pointer; }
+        /* QC top controls (Select all / Clear). Hidden on print. */
+        .qc-controls { display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 12px; padding: 8px 14px; background: #fff8f0;
+            border: 1px dashed var(--orange); border-radius: 6px; margin: 10px 0 12px; }
+        .qc-master { display: flex; align-items: center; gap: 8px; font-weight: 700;
+            cursor: pointer; color: #333; font-size: 0.85rem; }
+        .qc-master input[type="checkbox"] { width: 18px; height: 18px;
+            accent-color: var(--orange); cursor: pointer; }
+        .qc-clear { background: transparent; border: 1.5px solid var(--orange);
+            color: var(--orange); padding: 6px 14px; border-radius: 5px;
+            font-family: inherit; font-weight: 700; cursor: pointer; font-size: 0.78rem; }
+        .qc-clear:hover { background: var(--orange); color: #fff; }
+        /* Compact summary that mirrors selected items at the top of the section so
+           the printed page can show, e.g., "✓ 7 / 10 — Selected: A, B, C". */
+        .qc-summary { font-size: 0.78rem; color: #444; padding: 4px 14px 0; line-height: 1.5; }
+        .qc-summary strong { color: var(--orange); }
+        @media print {
+            .qc-controls { display: none !important; }
+            .check-row { border-bottom: 1px solid #ccc !important; padding: 4px 2px !important; }
+            .check-row .qc-main input[type="checkbox"],
+            .check-row .qc-na input[type="checkbox"],
+            .qc-master input[type="checkbox"] {
+                -webkit-appearance: checkbox !important; appearance: checkbox !important;
+                -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+            }
+        }
         .score-row { display: flex; gap: 6px; align-items: center; margin: 8px 0; }
         .score-box { width: 30px; height: 26px; border: 1.5px solid #999;
             display: flex; align-items: center; justify-content: center;
@@ -703,22 +736,197 @@
                 </table>
 
                 <div class="section-title">🔍 فحص التعبئة والتغليف — Packaging Inspection</div>
-                <div class="fields-grid two">
+                <div class="qc-controls no-print">
+                    <label class="qc-master">
+                        <input type="checkbox" id="qc-select-all">
+                        <span>تحديد الكل (Select all)</span>
+                    </label>
+                    <button type="button" class="qc-clear" id="qc-clear-all">مسح الاختيارات</button>
+                </div>
+                <div class="fields-grid two qc-grid" id="qc-grid">
                     <div>
-                        <div class="check-row"><div class="chk-box"></div><span>التعبئة سليمة ولا توجد أضرار ظاهرة</span><span class="chk-na">N/A☐</span></div>
-                        <div class="check-row"><div class="chk-box"></div><span>الملصقات واضحة وباللغة العربية</span><span class="chk-na">N/A☐</span></div>
-                        <div class="check-row"><div class="chk-box"></div><span>العبوات نظيفة وخالية من التلوث</span><span class="chk-na">N/A☐</span></div>
-                        <div class="check-row"><div class="chk-box"></div><span>وزن العبوة مطابق للمواصفات</span><span class="chk-na">N/A☐</span></div>
-                        <div class="check-row"><div class="chk-box"></div><span>باركود مقروء وصحيح</span><span class="chk-na">N/A☐</span></div>
+                        <label class="check-row">
+                            <span class="qc-main">
+                                <input type="checkbox" class="qc-check" name="qc[]" value="ok-pack" data-label="التعبئة سليمة ولا توجد أضرار ظاهرة">
+                                <span class="qc-label">التعبئة سليمة ولا توجد أضرار ظاهرة</span>
+                            </span>
+                            <span class="qc-na">
+                                <input type="checkbox" class="qc-na-input">
+                                <span>N/A</span>
+                            </span>
+                        </label>
+                        <label class="check-row">
+                            <span class="qc-main">
+                                <input type="checkbox" class="qc-check" name="qc[]" value="labels-ar" data-label="الملصقات واضحة وباللغة العربية">
+                                <span class="qc-label">الملصقات واضحة وباللغة العربية</span>
+                            </span>
+                            <span class="qc-na">
+                                <input type="checkbox" class="qc-na-input">
+                                <span>N/A</span>
+                            </span>
+                        </label>
+                        <label class="check-row">
+                            <span class="qc-main">
+                                <input type="checkbox" class="qc-check" name="qc[]" value="clean" data-label="العبوات نظيفة وخالية من التلوث">
+                                <span class="qc-label">العبوات نظيفة وخالية من التلوث</span>
+                            </span>
+                            <span class="qc-na">
+                                <input type="checkbox" class="qc-na-input">
+                                <span>N/A</span>
+                            </span>
+                        </label>
+                        <label class="check-row">
+                            <span class="qc-main">
+                                <input type="checkbox" class="qc-check" name="qc[]" value="weight-ok" data-label="وزن العبوة مطابق للمواصفات">
+                                <span class="qc-label">وزن العبوة مطابق للمواصفات</span>
+                            </span>
+                            <span class="qc-na">
+                                <input type="checkbox" class="qc-na-input">
+                                <span>N/A</span>
+                            </span>
+                        </label>
+                        <label class="check-row">
+                            <span class="qc-main">
+                                <input type="checkbox" class="qc-check" name="qc[]" value="barcode-ok" data-label="باركود مقروء وصحيح">
+                                <span class="qc-label">باركود مقروء وصحيح</span>
+                            </span>
+                            <span class="qc-na">
+                                <input type="checkbox" class="qc-na-input">
+                                <span>N/A</span>
+                            </span>
+                        </label>
                     </div>
                     <div>
-                        <div class="check-row"><div class="chk-box"></div><span>لا توجد علامات تلف أو تسريب</span><span class="chk-na">N/A☐</span></div>
-                        <div class="check-row"><div class="chk-box"></div><span>العمر الافتراضي المتبقي ≥ 75%</span><span class="chk-na">N/A☐</span></div>
-                        <div class="check-row"><div class="chk-box"></div><span>لا توجد آفات أو مؤشرات تلوث</span><span class="chk-na">N/A☐</span></div>
-                        <div class="check-row"><div class="chk-box"></div><span>مطابقة الكمية لبيانات ASN / PO</span><span class="chk-na">N/A☐</span></div>
-                        <div class="check-row"><div class="chk-box"></div><span>شروط التخزين محققة</span><span class="chk-na">N/A☐</span></div>
+                        <label class="check-row">
+                            <span class="qc-main">
+                                <input type="checkbox" class="qc-check" name="qc[]" value="no-leak" data-label="لا توجد علامات تلف أو تسريب">
+                                <span class="qc-label">لا توجد علامات تلف أو تسريب</span>
+                            </span>
+                            <span class="qc-na">
+                                <input type="checkbox" class="qc-na-input">
+                                <span>N/A</span>
+                            </span>
+                        </label>
+                        <label class="check-row">
+                            <span class="qc-main">
+                                <input type="checkbox" class="qc-check" name="qc[]" value="shelf-75" data-label="العمر الافتراضي المتبقي ≥ 75%">
+                                <span class="qc-label">العمر الافتراضي المتبقي ≥ 75%</span>
+                            </span>
+                            <span class="qc-na">
+                                <input type="checkbox" class="qc-na-input">
+                                <span>N/A</span>
+                            </span>
+                        </label>
+                        <label class="check-row">
+                            <span class="qc-main">
+                                <input type="checkbox" class="qc-check" name="qc[]" value="no-pests" data-label="لا توجد آفات أو مؤشرات تلوث">
+                                <span class="qc-label">لا توجد آفات أو مؤشرات تلوث</span>
+                            </span>
+                            <span class="qc-na">
+                                <input type="checkbox" class="qc-na-input">
+                                <span>N/A</span>
+                            </span>
+                        </label>
+                        <label class="check-row">
+                            <span class="qc-main">
+                                <input type="checkbox" class="qc-check" name="qc[]" value="qty-asn" data-label="مطابقة الكمية لبيانات ASN / PO">
+                                <span class="qc-label">مطابقة الكمية لبيانات ASN / PO</span>
+                            </span>
+                            <span class="qc-na">
+                                <input type="checkbox" class="qc-na-input">
+                                <span>N/A</span>
+                            </span>
+                        </label>
+                        <label class="check-row">
+                            <span class="qc-main">
+                                <input type="checkbox" class="qc-check" name="qc[]" value="storage-ok" data-label="شروط التخزين محققة">
+                                <span class="qc-label">شروط التخزين محققة</span>
+                            </span>
+                            <span class="qc-na">
+                                <input type="checkbox" class="qc-na-input">
+                                <span>N/A</span>
+                            </span>
+                        </label>
                     </div>
                 </div>
+                <p class="qc-summary" id="qc-summary" aria-live="polite">
+                    <strong id="qc-count">0 / 10</strong> بنود مطابقة. الحالات المختارة تُحفظ مع طباعة النموذج.
+                </p>
+                <script>
+                    (function () {
+                        // Reflect checked state to the HTML attribute so the printed
+                        // DOM snapshot keeps the selections visible across browsers
+                        // and PDF engines.
+                        function syncAttr(input) {
+                            if (input.checked) input.setAttribute('checked', 'checked');
+                            else input.removeAttribute('checked');
+                        }
+                        var grid = document.getElementById('qc-grid');
+                        var checks = grid.querySelectorAll('input.qc-check');
+                        var nas = grid.querySelectorAll('input.qc-na-input');
+                        var master = document.getElementById('qc-select-all');
+                        var clearBtn = document.getElementById('qc-clear-all');
+                        var counter = document.getElementById('qc-count');
+
+                        function refreshCounter() {
+                            var picked = 0;
+                            checks.forEach(function (c) { if (c.checked) picked++; });
+                            counter.textContent = picked + ' / ' + checks.length;
+                            // Keep the master checkbox in sync.
+                            master.checked = picked === checks.length;
+                            master.indeterminate = picked > 0 && picked < checks.length;
+                        }
+
+                        // Item check toggles — sync attribute, update counter, and
+                        // make the N/A on the same row mutually exclusive.
+                        checks.forEach(function (c) {
+                            c.addEventListener('change', function () {
+                                syncAttr(c);
+                                if (c.checked) {
+                                    var row = c.closest('.check-row');
+                                    var na = row && row.querySelector('.qc-na-input');
+                                    if (na && na.checked) { na.checked = false; syncAttr(na); }
+                                }
+                                refreshCounter();
+                            });
+                        });
+
+                        nas.forEach(function (n) {
+                            n.addEventListener('change', function () {
+                                syncAttr(n);
+                                if (n.checked) {
+                                    var row = n.closest('.check-row');
+                                    var c = row && row.querySelector('.qc-check');
+                                    if (c && c.checked) { c.checked = false; syncAttr(c); refreshCounter(); }
+                                }
+                            });
+                        });
+
+                        master.addEventListener('change', function () {
+                            checks.forEach(function (c) {
+                                c.checked = master.checked;
+                                syncAttr(c);
+                                // Selecting all clears any conflicting N/A flags.
+                                if (master.checked) {
+                                    var row = c.closest('.check-row');
+                                    var na = row && row.querySelector('.qc-na-input');
+                                    if (na && na.checked) { na.checked = false; syncAttr(na); }
+                                }
+                            });
+                            refreshCounter();
+                        });
+
+                        clearBtn.addEventListener('click', function () {
+                            checks.forEach(function (c) { c.checked = false; syncAttr(c); });
+                            nas.forEach(function (n) { n.checked = false; syncAttr(n); });
+                            master.checked = false;
+                            master.indeterminate = false;
+                            refreshCounter();
+                        });
+
+                        refreshCounter();
+                    })();
+                </script>
 
                 <div class="section-title">📊 ملخص الاستلام — Receipt Summary</div>
                 <div class="fields-grid four">
