@@ -93,7 +93,29 @@ const navItems = [
         </button>
       </div>
 
-      <nav class="mt-6 px-4 flex-1 overflow-y-auto">
+      <!--
+        Quick navigation: a primary "back to dashboard home" button and a
+        secondary "back to landing page" link. Sits above the main nav so
+        it stays a single tap away on mobile too.
+      -->
+      <div class="px-4 mt-4 space-y-2">
+        <a
+          href={`${base}/dashboard`}
+          class="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-brand-red hover:bg-brand-red-dark text-white font-bold text-sm shadow-md transition-colors"
+        >
+          <Icon name="grid" size={18} />
+          <span>لوحة التحكم</span>
+        </a>
+        <a
+          href={`${base}/`}
+          class="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg border border-gray-600 hover:border-brand-red hover:text-brand-red text-gray-300 font-medium text-sm transition-colors"
+        >
+          <Icon name="home" size={16} />
+          <span>الصفحة الرئيسية</span>
+        </a>
+      </div>
+
+      <nav class="mt-4 px-4 flex-1 overflow-y-auto">
         <ul class="space-y-1">
           {
             navItems.map((item) => (
