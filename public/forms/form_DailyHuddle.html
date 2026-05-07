@@ -508,6 +508,7 @@
             var libPromise = null;
             var html5QrInstance = null;
             var targetInput = null;
+            var scanCompleted = false;
 
             function loadScript(url) {
                 return new Promise(function (resolve, reject) {
@@ -624,6 +625,7 @@
 
             function openModal(input) {
                 targetInput = input;
+                scanCompleted = false;
                 showLoading();
                 modal.classList.add('is-open');
                 modal.setAttribute('aria-hidden', 'false');
@@ -635,23 +637,82 @@
                     });
             }
 
+            function teardownScanner() {
+                if (!html5QrInstance) return Promise.resolve();
+                var instance = html5QrInstance;
+                html5QrInstance = null;
+                try {
+                    return instance.stop()
+                        .catch(function () {})
+                        .then(function () {
+                            try { instance.clear(); } catch (e) { /* noop */ }
+                        });
+                } catch (e) {
+                    return Promise.resolve();
+                }
+            }
+
             function closeModal() {
                 modal.classList.remove('is-open');
                 modal.setAttribute('aria-hidden', 'true');
-                if (html5QrInstance) {
-                    try { html5QrInstance.stop().catch(function () {}); } catch (e) { /* noop */ }
-                    html5QrInstance = null;
-                }
+                teardownScanner();
                 viewport.innerHTML = '';
+                targetInput = null;
+                scanCompleted = false;
             }
 
+            /**
+             * Inject the decoded text into the input that triggered the
+             * scanner, dispatch input + change events for any framework
+             * listeners, then close the modal. Guarded by scanCompleted
+             * so the multi-frame success callback can only act once.
+             */
             function handleResult(value) {
-                if (targetInput) {
-                    targetInput.value = value;
-                    targetInput.dispatchEvent(new Event('input', { bubbles: true }));
-                    targetInput.focus();
+                if (scanCompleted) return;
+                scanCompleted = true;
+
+                var input = targetInput; // capture before any teardown
+                var clean = String(value == null ? '' : value).trim();
+
+                // 1) Write the value FIRST while the DOM is guaranteed
+                //    to still be alive. Use both the property setter and
+                //    the attribute so any framework or print-mirror code
+                //    that reads either path sees the new value.
+                if (input) {
+                    try { input.value = clean; } catch (e) { /* noop */ }
+                    try { input.setAttribute('value', clean); } catch (e) { /* noop */ }
+                    try {
+                        input.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+                    } catch (e) { /* noop */ }
+                    try {
+                        input.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+                    } catch (e) { /* noop */ }
                 }
-                closeModal();
+
+                // 2) Visual confirmation so the user sees that the scan
+                //    actually landed in the right cell.
+                viewport.innerHTML =
+                    '<div style="padding:32px 14px;color:#10b981;text-align:center;font-family:Cairo,sans-serif;">' +
+                    '<div style="font-size:2.6rem;line-height:1;margin-bottom:10px;">✓</div>' +
+                    '<div style="font-size:1rem;font-weight:700;margin-bottom:10px;color:#fff;">تم قراءة الباركود بنجاح</div>' +
+                    '<div style="font-size:0.86rem;color:#fff;background:#0f172a;padding:8px 12px;border-radius:6px;font-family:monospace;direction:ltr;display:inline-block;max-width:100%;overflow-wrap:anywhere;">' +
+                    (clean || '—') +
+                    '</div></div>';
+
+                // 3) Stop the camera and close the modal after a brief
+                //    flash. Teardown is async, so we do it in parallel
+                //    with the visual confirmation.
+                teardownScanner();
+                setTimeout(function () {
+                    modal.classList.remove('is-open');
+                    modal.setAttribute('aria-hidden', 'true');
+                    viewport.innerHTML = '';
+                    if (input) {
+                        try { input.focus(); } catch (e) { /* noop */ }
+                    }
+                    targetInput = null;
+                    scanCompleted = false;
+                }, 700);
             }
 
             cancelBtn.addEventListener('click', closeModal);
