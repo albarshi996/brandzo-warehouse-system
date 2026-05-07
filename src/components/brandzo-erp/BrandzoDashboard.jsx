@@ -31,13 +31,15 @@ const BrandzoDashboard = () => {
 
   return (
     <div className="text-right" dir="rtl">
-      <header className="mb-8 flex items-center justify-between">
+      <header className="mb-6 sm:mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-brand-navy">نظرة عامة على النظام</h1>
-          <p className="text-gray-500 mt-1">مؤشرات الأداء الرئيسية وحالة المخزون</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-brand-navy">نظرة عامة على النظام</h1>
+          <p className="text-gray-500 mt-1 text-sm sm:text-base">
+            مؤشرات الأداء الرئيسية وحالة المخزون
+          </p>
         </div>
         <button
-          className="rounded-xl bg-brand-red px-6 py-3 font-bold text-white transition-all hover:bg-brand-red-dark shadow-md hover:shadow-lg active:scale-95"
+          className="w-full md:w-auto rounded-xl bg-brand-red px-4 py-3 sm:px-6 font-bold text-white transition-all hover:bg-brand-red-dark shadow-md hover:shadow-lg active:scale-95"
           onClick={() => alert('Barcode scanner coming soon!')}
         >
           فتح الماسح الضوئي (Barcode)
@@ -81,8 +83,8 @@ const BrandzoDashboard = () => {
 
       <main className="mt-10">
         <section className="rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-brand-navy">نظرة عامة على المخزون</h2>
+          <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between gap-3">
+            <h2 className="text-lg sm:text-xl font-bold text-brand-navy">نظرة عامة على المخزون</h2>
             <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-bold">
               تحديث تلقائي
             </span>
@@ -91,21 +93,29 @@ const BrandzoDashboard = () => {
             <table className="w-full text-right text-sm">
               <thead className="bg-gray-50 text-gray-700">
                 <tr>
-                  <th className="px-6 py-4 font-bold">SKU</th>
-                  <th className="px-6 py-4 font-bold">الاسم (AR)</th>
-                  <th className="px-6 py-4 font-bold">الفئة</th>
-                  <th className="px-6 py-4 font-bold">الرصيد</th>
-                  <th className="px-6 py-4 font-bold text-center">الحالة</th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold whitespace-nowrap">SKU</th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold">الاسم (AR)</th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold hidden sm:table-cell">
+                    الفئة
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold whitespace-nowrap">الرصيد</th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-center">الحالة</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {Items_Master.map((item) => (
                   <tr key={item.sku} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 font-mono text-brand-red font-bold">{item.sku}</td>
-                    <td className="px-6 py-4 font-medium">{item.names.ar}</td>
-                    <td className="px-6 py-4">{item.category}</td>
-                    <td className="px-6 py-4 font-bold text-lg">{item.balance}</td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 font-mono text-brand-red font-bold whitespace-nowrap">
+                      {item.sku}
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium">{item.names.ar}</td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 hidden sm:table-cell">
+                      {item.category}
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-lg whitespace-nowrap">
+                      {item.balance}
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-center">
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-bold ${
                           item.status === 'متاح'

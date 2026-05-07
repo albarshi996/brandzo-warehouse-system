@@ -62,8 +62,10 @@ const WarehouseManager = () => {
   };
 
   return (
-    <div className="p-6 font-['Cairo'] text-right" dir="rtl">
-      <h2 className="text-2xl font-bold mb-6 text-brand-navy">إدارة المستودعات (Warehouses)</h2>
+    <div className="font-['Cairo'] text-right" dir="rtl">
+      <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-brand-navy">
+        إدارة المستودعات (Warehouses)
+      </h2>
 
       {/* منطقة التنبيهات */}
       {statusMsg.text && (
@@ -83,10 +85,10 @@ const WarehouseManager = () => {
       {/* نموذج الإضافة */}
       <form
         onSubmit={handleAdd}
-        className="mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-200 transition-all"
+        className="mb-6 sm:mb-8 bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 transition-all"
       >
         <h3 className="text-lg font-bold mb-4 text-brand-red">إضافة مستودع جديد</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <input
             type="text"
             placeholder="كود المستودع (WH001)"
@@ -121,50 +123,54 @@ const WarehouseManager = () => {
 
       {/* قائمة المستودعات */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <table className="w-full text-right border-collapse">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="p-4 font-bold text-gray-700">الكود</th>
-              <th className="p-4 font-bold text-gray-700">الاسم</th>
-              <th className="p-4 font-bold text-gray-700">المدير</th>
-              <th className="p-4 font-bold text-gray-700">الحالة</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
+        <div className="overflow-x-auto">
+          <table className="w-full text-right text-sm border-collapse">
+            <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <td colSpan="4" className="p-8 text-center text-gray-500 italic">
-                  جاري جلب البيانات من السحابة...
-                </td>
+                <th className="p-3 sm:p-4 font-bold text-gray-700 whitespace-nowrap">الكود</th>
+                <th className="p-3 sm:p-4 font-bold text-gray-700">الاسم</th>
+                <th className="p-3 sm:p-4 font-bold text-gray-700 hidden sm:table-cell">المدير</th>
+                <th className="p-3 sm:p-4 font-bold text-gray-700">الحالة</th>
               </tr>
-            ) : warehouses.length === 0 ? (
-              <tr>
-                <td colSpan="4" className="p-8 text-center text-gray-500 font-bold">
-                  لا توجد مستودعات مسجلة حالياً
-                </td>
-              </tr>
-            ) : (
-              warehouses.map((wh) => (
-                <tr key={wh.id} className="border-b hover:bg-gray-50 transition-colors">
-                  <td className="p-4 font-mono text-brand-red font-bold">{wh.code}</td>
-                  <td className="p-4 font-semibold">{wh.name}</td>
-                  <td className="p-4">{wh.manager || '—'}</td>
-                  <td className="p-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        wh.status === 'نشط'
-                          ? 'bg-green-100 text-green-800 border border-green-200'
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {wh.status || 'نشط'}
-                    </span>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan="4" className="p-8 text-center text-gray-500 italic">
+                    جاري جلب البيانات من السحابة...
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : warehouses.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="p-8 text-center text-gray-500 font-bold">
+                    لا توجد مستودعات مسجلة حالياً
+                  </td>
+                </tr>
+              ) : (
+                warehouses.map((wh) => (
+                  <tr key={wh.id} className="border-b hover:bg-gray-50 transition-colors">
+                    <td className="p-3 sm:p-4 font-mono text-brand-red font-bold whitespace-nowrap">
+                      {wh.code}
+                    </td>
+                    <td className="p-3 sm:p-4 font-semibold">{wh.name}</td>
+                    <td className="p-3 sm:p-4 hidden sm:table-cell">{wh.manager || '—'}</td>
+                    <td className="p-3 sm:p-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap ${
+                          wh.status === 'نشط'
+                            ? 'bg-green-100 text-green-800 border border-green-200'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {wh.status || 'نشط'}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
