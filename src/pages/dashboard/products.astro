@@ -1,14 +1,8 @@
 ---
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
-import ComingSoon from '../../components/ui/ComingSoon.astro';
+import ItemMaster from '../../components/brandzo-erp/items/ItemMaster.jsx';
 ---
 
 <DashboardLayout title="إدارة الأصناف">
-  <ComingSoon
-    title="إدارة الأصناف (Products)"
-    headline="قريباً: إدارة الأصناف والكتالوج"
-    description="نحن نعمل على بناء واجهة متطورة لإدارة جميع أصناف Brandzo مع دعم كامل للفئات، الوحدات، والباركود."
-    icon="package"
-    iconBadgeClass="bg-red-50 text-brand-red"
-  />
+  <ItemMaster client:load />
 </DashboardLayout>

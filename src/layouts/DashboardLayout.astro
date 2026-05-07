@@ -34,28 +34,72 @@ const navItems = [
       }
     </style>
   </head>
-  <body class="flex min-h-screen">
-    <!-- Sidebar -->
-    <aside
-      class="fixed inset-y-0 right-0 w-64 bg-brand-navy text-white shadow-xl z-20 flex flex-col"
+  <body class="min-h-screen">
+    <!--
+      Mobile-only top bar. The hamburger toggle appears only at < md and
+      is positioned at the top-right (the natural "start" in our RTL
+      layout). It is `fixed` so it floats above the page content.
+    -->
+    <header
+      id="brandzo-mobile-header"
+      class="md:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between bg-brand-navy text-white px-4 py-3 shadow-lg"
     >
-      <div class="p-6 border-b border-gray-700 flex items-center gap-3">
+      <div class="flex items-center gap-3">
         <div
-          class="w-10 h-10 bg-brand-red rounded-lg flex items-center justify-center font-bold text-xl shadow-lg"
+          class="w-9 h-9 bg-brand-red rounded-lg flex items-center justify-center font-bold text-lg shadow"
         >
           B
         </div>
-        <h1 class="text-xl font-bold tracking-tight">Brandzo ERP</h1>
+        <span class="font-bold tracking-tight">Brandzo ERP</span>
+      </div>
+      <button
+        id="brandzo-menu-toggle"
+        type="button"
+        aria-label="فتح القائمة"
+        aria-controls="brandzo-sidebar"
+        aria-expanded="false"
+        class="p-2 rounded-md hover:bg-gray-800 transition-colors"
+      >
+        <Icon name="menu" size={24} />
+      </button>
+    </header>
+
+    <!--
+      Sidebar. Slides in from the right (RTL) on mobile; permanently
+      visible at md+. Uses translate-x for the off-canvas state so the
+      hover/focus styles stay live and we don't have to remount on resize.
+    -->
+    <aside
+      id="brandzo-sidebar"
+      class="fixed inset-y-0 right-0 w-64 max-w-[85vw] bg-brand-navy text-white shadow-xl z-40 flex flex-col transform translate-x-full md:translate-x-0 transition-transform duration-200 ease-out"
+    >
+      <div class="p-6 border-b border-gray-700 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 bg-brand-red rounded-lg flex items-center justify-center font-bold text-xl shadow-lg"
+          >
+            B
+          </div>
+          <h1 class="text-xl font-bold tracking-tight">Brandzo ERP</h1>
+        </div>
+        <button
+          id="brandzo-menu-close"
+          type="button"
+          aria-label="إغلاق القائمة"
+          class="md:hidden p-2 rounded-md hover:bg-gray-800 transition-colors"
+        >
+          <Icon name="close" size={20} />
+        </button>
       </div>
 
-      <nav class="mt-8 px-4">
-        <ul class="space-y-2">
+      <nav class="mt-6 px-4 flex-1 overflow-y-auto">
+        <ul class="space-y-1">
           {
             navItems.map((item) => (
               <li>
                 <a
                   href={item.href}
-                  class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors group"
+                  class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors"
                 >
                   <Icon name={item.icon} class="text-brand-red" />
                   <span class="font-medium">{item.label}</span>
@@ -71,11 +115,68 @@ const navItems = [
       </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 mr-64 p-8">
+    <!-- Mobile backdrop. Click anywhere to close the sidebar. -->
+    <div
+      id="brandzo-backdrop"
+      class="md:hidden fixed inset-0 bg-black/50 z-30 hidden"
+      aria-hidden="true"
+    >
+    </div>
+
+    <!--
+      Main content. No right margin on mobile (sidebar is off-canvas);
+      mr-64 at md+ to leave room for the always-visible sidebar.
+    -->
+    <main class="md:mr-64 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pt-20 md:pt-8">
       <div class="max-w-7xl mx-auto">
         <slot />
       </div>
     </main>
+
+    <script is:inline>
+      (function () {
+        const sidebar = document.getElementById('brandzo-sidebar');
+        const backdrop = document.getElementById('brandzo-backdrop');
+        const toggle = document.getElementById('brandzo-menu-toggle');
+        const close = document.getElementById('brandzo-menu-close');
+        if (!sidebar || !backdrop || !toggle) return;
+
+        const open = () => {
+          sidebar.classList.remove('translate-x-full');
+          backdrop.classList.remove('hidden');
+          toggle.setAttribute('aria-expanded', 'true');
+          document.body.classList.add('overflow-hidden', 'md:overflow-auto');
+        };
+        const dismiss = () => {
+          sidebar.classList.add('translate-x-full');
+          backdrop.classList.add('hidden');
+          toggle.setAttribute('aria-expanded', 'false');
+          document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
+        };
+
+        toggle.addEventListener('click', () => {
+          if (sidebar.classList.contains('translate-x-full')) open();
+          else dismiss();
+        });
+        close && close.addEventListener('click', dismiss);
+        backdrop.addEventListener('click', dismiss);
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') dismiss();
+        });
+        // Re-show the sidebar (and clear off-canvas transform) when the user
+        // resizes back up to desktop, so it is always pinned at md+.
+        const mql = window.matchMedia('(min-width: 768px)');
+        const sync = () => {
+          if (mql.matches) {
+            sidebar.classList.remove('translate-x-full');
+            backdrop.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
+          } else {
+            sidebar.classList.add('translate-x-full');
+          }
+        };
+        mql.addEventListener('change', sync);
+      })();
+    </script>
   </body>
 </html>
