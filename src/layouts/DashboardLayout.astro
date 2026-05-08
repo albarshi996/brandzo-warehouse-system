@@ -25,160 +25,363 @@ const navItems = [
     <title>{title ? `${title} - Brandzo ERP 2026` : 'Brandzo ERP 2026'}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
-    
-    <style is:global>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
       body {
         font-family: 'Cairo', sans-serif;
         background-color: #f3f4f6;
       }
 
-      /* إعدادات الباركود والطباعة - تم استعادتها */
-      @media print {
-        .no-print { display: none !important; }
-        body { background-color: white !important; }
-        .print-only { display: block !important; }
-        .barcode-card {
-          break-inside: avoid;
-          page-break-inside: avoid;
-          border: 1px solid #000 !important;
-          margin-bottom: 0.5rem;
-        }
-      }
-
-      /* تنسيق بطاقات الباركود */
-      .barcode-container svg {
-        width: 100% !important;
-        height: auto !important;
-      }
-
-      /* Guide Drawer Styles */
+      /* ─── Guide Drawer ──────────────────────────────────────────────────────── */
+      /*
+        الـ drawer يخرج من اليمين في واجهة RTL.
+        نستخدم translateX(100%) للإخفاء و translateX(0) للظهور.
+        margin-inline-start: auto يضعه على يمين الشاشة بشكل صحيح بغض
+        النظر عن اتجاه النص.
+      */
       #guide-drawer {
-        margin-right: auto;
-        margin-left: 0;
-        height: 100vh;
-        max-height: 100vh;
+        /* الموضع والحجم */
+        margin-inline-start: auto; /* يدفعه لليمين في RTL */
+        margin-inline-end: 0;
+        width: min(90vw, 28rem);   /* مرن: لا يتجاوز 90% العرض ولا 448px */
+        height: 100dvh;            /* dvh يأخذ شريط العنوان في الموبايل بعين الاعتبار */
+        max-height: 100dvh;
+
+        /* المظهر */
         border: none;
-        background: rgba(26, 26, 46, 0.8);
+        border-inline-start: 2px solid #e8b830; /* حد ذهبي على يسار الـ drawer */
+        background: rgba(26, 26, 46, 0.92);
         backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         color: white;
         box-shadow: -10px 0 30px rgba(192, 57, 43, 0.3);
-        transform: translateX(-100%);
+
+        /* الحركة: مخفي لليمين بداية */
+        transform: translateX(100%);
         transition: transform 0.3s ease-out;
+
+        /* تخطيط داخلي */
         display: flex;
         flex-direction: column;
-        border-right: 2px solid #e8b830;
       }
 
-      #guide-drawer[open] { transform: translateX(0); display: flex; }
-      #guide-drawer::backdrop { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); }
-      .neon-glow-gold { box-shadow: 0 0 10px rgba(232, 184, 48, 0.5); }
+      /* حالة الفتح */
+      #guide-drawer[open] {
+        transform: translateX(0) !important; /* !important لتجاوز قيمة المتصفح الافتراضية */
+        display: flex !important;            /* بعض المتصفحات تُعيد display إلى block */
+      }
+
+      /* الـ backdrop الضبابي خلف الـ dialog */
+      #guide-drawer::backdrop {
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+      }
+
+      /* محتوى الـ iframe: يملأ المساحة المتبقية بين الرأس والتذييل */
+      #guide-drawer .guide-body {
+        flex: 1 1 0%;
+        min-height: 0;       /* ضروري لكي يعمل flex-shrink داخل flex column */
+        overflow: hidden;
+      }
+
+      #guide-drawer .guide-body iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+      }
+
+      /* توهجات النيون */
+      .neon-glow-gold {
+        box-shadow: 0 0 10px rgba(232, 184, 48, 0.5), 0 0 20px rgba(232, 184, 48, 0.3);
+      }
+
+      .neon-glow-red {
+        box-shadow: 0 0 10px rgba(192, 57, 43, 0.5), 0 0 20px rgba(192, 57, 43, 0.3);
+      }
     </style>
   </head>
+
   <body class="min-h-screen">
 
-    <header id="brandzo-mobile-header" class="no-print md:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between bg-brand-navy text-white px-4 py-3 shadow-lg">
+    <!--
+      ═══════════════════════════════════════════════════════════
+      شريط العنوان العلوي — يظهر فقط على الموبايل (أصغر من md)
+      ═══════════════════════════════════════════════════════════
+      - fixed: يطفو فوق المحتوى ولا يُزاح عند التمرير
+      - inset-x-0: يمتد على كامل عرض الشاشة
+      - z-50: فوق المحتوى لكن تحت السايدبار (z-[70]) والـ backdrop (z-[60])
+    -->
+    <header
+      id="brandzo-mobile-header"
+      class="md:hidden fixed top-0 inset-x-0 z-50 flex items-center justify-between bg-brand-navy text-white px-4 py-3 shadow-lg"
+    >
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 bg-brand-red rounded-lg flex items-center justify-center font-bold text-lg shadow">B</div>
+        <div
+          class="w-9 h-9 bg-brand-red rounded-lg flex items-center justify-center font-bold text-lg shadow"
+        >
+          B
+        </div>
         <span class="font-bold tracking-tight">Brandzo ERP</span>
       </div>
-      <button id="brandzo-menu-toggle" type="button" class="p-2 rounded-md hover:bg-gray-800"><Icon name="menu" size={24} /></button>
+      <button
+        id="brandzo-menu-toggle"
+        type="button"
+        aria-label="فتح القائمة"
+        aria-controls="brandzo-sidebar"
+        aria-expanded="false"
+        class="p-2 rounded-md hover:bg-gray-800 transition-colors"
+      >
+        <Icon name="menu" size={24} />
+      </button>
     </header>
 
-    <aside id="brandzo-sidebar" class="no-print fixed top-0 right-0 h-[100dvh] w-64 max-w-[85vw] bg-brand-navy text-white shadow-xl z-50 flex flex-col transform translate-x-full md:translate-x-0 transition-transform duration-200 ease-out">
-      <div class="p-6 border-b border-gray-700 flex items-center justify-between">
+    <!--
+      ═══════════════════════════════════════════════════════════
+      السايدبار الجانبي
+      ═══════════════════════════════════════════════════════════
+      - موبايل: مخفي خارج الشاشة عبر translate-x-full (RTL: خارج اليمين)
+      - سطح مكتب (md+): ثابت ومرئي دائماً عبر md:translate-x-0
+      - right-0: مثبت على يمين الشاشة (صحيح لـ RTL)
+      - z-[70]: فوق الـ backdrop (z-[60]) وتحت الـ dialog
+    -->
+    <aside
+      id="brandzo-sidebar"
+      class="fixed top-0 right-0 w-64 max-w-[85vw] h-[100dvh] bg-brand-navy text-white shadow-xl z-[70] flex flex-col transform translate-x-full md:translate-x-0 transition-transform duration-200 ease-out"
+    >
+      <!-- رأس السايدبار: شعار + زر الإغلاق في الموبايل -->
+      <div class="p-6 border-b border-gray-700 flex items-center justify-between gap-3 sticky top-0 bg-brand-navy z-[80]">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-brand-red rounded-lg flex items-center justify-center font-bold text-xl shadow-lg">B</div>
+          <div
+            class="w-10 h-10 bg-brand-red rounded-lg flex items-center justify-center font-bold text-xl shadow-lg"
+          >
+            B
+          </div>
           <h1 class="text-xl font-bold tracking-tight">Brandzo ERP</h1>
         </div>
-        <button id="brandzo-menu-close" class="md:hidden p-2 rounded-md hover:bg-gray-800"><Icon name="close" size={20} /></button>
+        <!-- زر الإغلاق: يظهر فقط في الموبايل -->
+        <button
+          id="brandzo-menu-close"
+          type="button"
+          aria-label="إغلاق القائمة"
+          class="md:hidden p-2 rounded-md hover:bg-gray-800 transition-colors"
+        >
+          <Icon name="close" size={20} />
+        </button>
       </div>
 
+      <!-- روابط التنقل السريع -->
+      <div class="px-4 mt-4 space-y-2">
+        <a
+          href={`${base}/dashboard`}
+          class="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-brand-red hover:bg-brand-red-dark text-white font-bold text-sm shadow-md transition-colors"
+        >
+          <Icon name="grid" size={18} />
+          <span>لوحة التحكم</span>
+        </a>
+        <a
+          href={`${base}/`}
+          class="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg border border-gray-600 hover:border-brand-red hover:text-brand-red text-gray-300 font-medium text-sm transition-colors"
+        >
+          <Icon name="home" size={16} />
+          <span>الصفحة الرئيسية</span>
+        </a>
+      </div>
+
+      <!-- قائمة التنقل الرئيسية -->
       <nav class="mt-4 px-4 flex-1 overflow-y-auto">
         <ul class="space-y-1">
-          {navItems.map((item) => (
-            <li>
-              <a href={item.href} class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors">
-                <Icon name={item.icon} class="text-brand-red" />
-                <span class="font-medium">{item.label}</span>
-              </a>
-            </li>
-          ))}
+          {
+            navItems.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  <Icon name={item.icon} class="text-brand-red" />
+                  <span class="font-medium">{item.label}</span>
+                </a>
+              </li>
+            ))
+          }
+
+          <!-- زر فتح الدليل التشغيلي -->
           <li>
-            <button id="open-guide" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 text-right">
+            <button
+              id="open-guide"
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors text-right"
+              type="button"
+            >
               <Icon name="bookOpen" class="text-brand-gold" />
               <span class="font-medium">الدليل التشغيلي</span>
             </button>
           </li>
         </ul>
       </nav>
+
+      <!-- تذييل السايدبار: مثبت في الأسفل -->
+      <div class="mt-auto border-t border-gray-700 px-4 py-3 text-center">
+        <p class="text-[11px] leading-snug text-gray-300 font-medium" dir="rtl">
+          برمجة وتطوير: محمد إبراهيم البرشي
+        </p>
+        <p class="text-[10px] text-gray-500 mt-1">Brandzo ERP 2026 &copy;</p>
+      </div>
     </aside>
 
-    <div id="brandzo-backdrop" class="no-print md:hidden fixed inset-0 bg-black/50 z-40 hidden"></div>
+    <!--
+      Backdrop: طبقة شبه شفافة خلف السايدبار في الموبايل.
+      النقر عليها يُغلق السايدبار.
+      z-[60]: تحت السايدبار (z-[70]) وفوق المحتوى.
+    -->
+    <div
+      id="brandzo-backdrop"
+      class="md:hidden fixed inset-0 bg-black/50 z-[60] hidden"
+      aria-hidden="true"
+    ></div>
 
-    <main class="md:mr-64 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pt-20 md:pt-8 transition-all">
+    <!--
+      ═══════════════════════════════════════════════════════════
+      المحتوى الرئيسي
+      ═══════════════════════════════════════════════════════════
+      - موبايل: padding-top يساوي ارتفاع شريط العنوان (h-14 = 56px ≈ pt-16)
+        نستخدم pt-16 (64px) لإعطاء هامش آمن إضافي.
+      - سطح مكتب: md:pt-8 يلغي الـ padding الزائد (لا يوجد header ثابت).
+      - md:mr-64: هامش يمين بعرض السايدبار لمنع التداخل.
+    -->
+    <main class="md:mr-64 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pt-16 md:pt-8">
       <div class="max-w-7xl mx-auto">
         <slot />
       </div>
     </main>
 
-    <dialog id="guide-drawer" class="no-print w-full max-w-[90vw] md:max-w-md">
-      <div class="flex items-center justify-between p-4 border-b border-brand-gold/30 bg-brand-navy/50">
-        <h2 class="text-xl font-bold text-brand-gold">الدليل التشغيلي</h2>
-        <button id="close-guide" class="p-2 hover:bg-white/10 rounded-full"><Icon name="close" size={20} /></button>
+    <!--
+      ═══════════════════════════════════════════════════════════
+      الدليل التشغيلي — dialog يخرج من اليمين
+      ═══════════════════════════════════════════════════════════
+      لا نضع height هنا مباشرةً لأن CSS يتكفل بـ h: 100dvh
+    -->
+    <dialog id="guide-drawer">
+      <!-- رأس الـ drawer -->
+      <div class="flex items-center justify-between p-4 border-b border-brand-gold/30 bg-brand-navy/50 flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-brand-gold rounded flex items-center justify-center text-brand-navy shadow-lg neon-glow-gold">
+            <Icon name="bookOpen" size={18} />
+          </div>
+          <h2 class="text-xl font-bold text-brand-gold">الدليل التشغيلي</h2>
+        </div>
+        <button id="close-guide" type="button" class="p-2 hover:bg-white/10 rounded-full transition-colors" aria-label="إغلاق الدليل">
+          <Icon name="close" size={20} />
+        </button>
       </div>
-      <div class="flex-1 overflow-hidden">
-        <iframe src={`${base}/Brandzo_Operational_Guide.html`} class="w-full h-full border-none"></iframe>
+
+      <!-- جسم الـ drawer: الـ iframe يملأ المساحة المتاحة -->
+      <div class="guide-body">
+        <iframe
+          src={`${base}/Brandzo_Operational_Guide.html`}
+          title="الدليل التشغيلي"
+          loading="lazy"
+        ></iframe>
+      </div>
+
+      <!-- تذييل الـ drawer -->
+      <div class="p-4 border-t border-brand-gold/30 bg-brand-navy/50 text-center text-xs text-gray-400 flex-shrink-0">
+        Brandzo ERP 2026 - Operational Excellence
       </div>
     </dialog>
 
     <script is:inline>
       (function () {
-        const sidebar = document.getElementById('brandzo-sidebar');
-        const backdrop = document.getElementById('brandzo-backdrop');
-        const toggle = document.getElementById('brandzo-menu-toggle');
-        const close = document.getElementById('brandzo-menu-close');
-        const guideDrawer = document.getElementById('guide-drawer');
+        'use strict';
+
+        /* ─── 1. الدليل التشغيلي (Guide Drawer) ─────────────────────────────── */
+        const guideDrawer  = document.getElementById('guide-drawer');
         const openGuideBtn = document.getElementById('open-guide');
         const closeGuideBtn = document.getElementById('close-guide');
 
+        if (guideDrawer && openGuideBtn && closeGuideBtn) {
+          openGuideBtn.addEventListener('click', () => {
+            guideDrawer.showModal();
+          });
+
+          closeGuideBtn.addEventListener('click', () => {
+            guideDrawer.close();
+          });
+
+          /*
+            إغلاق الـ drawer عند النقر على الـ backdrop.
+            e.target === guideDrawer تعني أن المستخدم نقر خارج محتوى الـ dialog.
+          */
+          guideDrawer.addEventListener('click', (e) => {
+            if (e.target === guideDrawer) guideDrawer.close();
+          });
+        }
+
+        /* ─── 2. السايدبار على الموبايل ──────────────────────────────────────── */
+        const sidebar  = document.getElementById('brandzo-sidebar');
+        const backdrop = document.getElementById('brandzo-backdrop');
+        const toggle   = document.getElementById('brandzo-menu-toggle');
+        const closeBtn = document.getElementById('brandzo-menu-close');
+
         if (!sidebar || !backdrop || !toggle) return;
 
-        const open = () => {
+        /** فتح السايدبار */
+        function openSidebar() {
           sidebar.classList.remove('translate-x-full');
           backdrop.classList.remove('hidden');
-          document.body.classList.add('overflow-hidden', 'md:overflow-auto');
-        };
+          toggle.setAttribute('aria-expanded', 'true');
+          /*
+            نمنع تمرير الصفحة خلف السايدبار عبر style مباشر بدلاً من
+            Tailwind classes الديناميكية (التي لا تُولَّد إلا عند وجودها
+            في HTML وقت البناء).
+          */
+          document.body.style.overflow = 'hidden';
+        }
 
-        const dismiss = () => {
+        /** إغلاق السايدبار */
+        function closeSidebar() {
           sidebar.classList.add('translate-x-full');
           backdrop.classList.add('hidden');
-          document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
-        };
+          toggle.setAttribute('aria-expanded', 'false');
+          document.body.style.overflow = '';
+        }
 
-        toggle.addEventListener('click', open);
-        close && close.addEventListener('click', dismiss);
-        backdrop.addEventListener('click', dismiss);
+        toggle.addEventListener('click', () => {
+          const isOpen = !sidebar.classList.contains('translate-x-full');
+          if (isOpen) closeSidebar();
+          else openSidebar();
+        });
 
-        // Auto-sync for screen resize
+        if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+        backdrop.addEventListener('click', closeSidebar);
+
+        /* إغلاق عند ضغط Escape (إلا لو كان الـ guide drawer مفتوحاً) */
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && !guideDrawer?.open) closeSidebar();
+        });
+
+        /*
+          مزامنة حالة السايدبار عند تغيير حجم النافذة.
+          - سطح مكتب (md+): السايدبار مرئي دائماً → نُزيل translate-x-full
+          - موبايل: نُعيد translate-x-full لو كانت النافذة صغُرت فجأة
+        */
         const mql = window.matchMedia('(min-width: 768px)');
-        const sync = () => {
-          if (mql.matches) {
+
+        function syncSidebarToBreakpoint(e) {
+          if (e.matches) {
+            /* انتقلنا إلى سطح المكتب */
             sidebar.classList.remove('translate-x-full');
             backdrop.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
+            document.body.style.overflow = '';
           } else {
+            /* رجعنا للموبايل: أخفِ السايدبار */
             sidebar.classList.add('translate-x-full');
           }
-        };
-        mql.addEventListener('change', sync);
-        sync();
-
-        // Guide Drawer Logic
-        if (guideDrawer && openGuideBtn) {
-          openGuideBtn.addEventListener('click', () => { dismiss(); guideDrawer.showModal(); });
-          closeGuideBtn.addEventListener('click', () => guideDrawer.close());
         }
+
+        mql.addEventListener('change', syncSidebarToBreakpoint);
       })();
     </script>
   </body>
