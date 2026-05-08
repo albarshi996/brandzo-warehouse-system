@@ -74,19 +74,13 @@ const navItems = [
     </style>
   </head>
   <body class="min-h-screen">
-    <!--
-      Mobile-only top bar. The hamburger toggle appears only at < md and
-      is positioned at the top-right (the natural "start" in our RTL
-      layout). It is `fixed` so it floats above the page content.
-    -->
+
     <header
       id="brandzo-mobile-header"
       class="md:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between bg-brand-navy text-white px-4 py-3 shadow-lg"
     >
       <div class="flex items-center gap-3">
-        <div
-          class="w-9 h-9 bg-brand-red rounded-lg flex items-center justify-center font-bold text-lg shadow"
-        >
+        <div class="w-9 h-9 bg-brand-red rounded-lg flex items-center justify-center font-bold text-lg shadow">
           B
         </div>
         <span class="font-bold tracking-tight">Brandzo ERP</span>
@@ -103,20 +97,13 @@ const navItems = [
       </button>
     </header>
 
-    <!--
-      Sidebar. Slides in from the right (RTL) on mobile; permanently
-      visible at md+. Uses translate-x for the off-canvas state so the
-      hover/focus styles stay live and we don't have to remount on resize.
-    -->
     <aside
       id="brandzo-sidebar"
       class="fixed inset-y-0 right-0 w-64 max-w-[85vw] bg-brand-navy text-white shadow-xl z-40 flex flex-col transform translate-x-full md:translate-x-0 transition-transform duration-200 ease-out"
     >
-      <div class="p-6 border-b border-gray-700 flex items-center justify-between gap-3 sticky top-0 bg-brand-navy z-[80]">
+      <div class="p-6 border-b border-gray-700 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
-          <div
-            class="w-10 h-10 bg-brand-red rounded-lg flex items-center justify-center font-bold text-xl shadow-lg"
-          >
+          <div class="w-10 h-10 bg-brand-red rounded-lg flex items-center justify-center font-bold text-xl shadow-lg">
             B
           </div>
           <h1 class="text-xl font-bold tracking-tight">Brandzo ERP</h1>
@@ -131,11 +118,6 @@ const navItems = [
         </button>
       </div>
 
-      <!--
-        Quick navigation: a primary "back to dashboard home" button and a
-        secondary "back to landing page" link. Sits above the main nav so
-        it stays a single tap away on mobile too.
-      -->
       <div class="px-4 mt-4 space-y-2">
         <a
           href={`${base}/dashboard`}
@@ -168,7 +150,6 @@ const navItems = [
               </li>
             ))
           }
-          <!-- Pillar 1: Guide Trigger -->
           <li>
             <button
               id="open-guide"
@@ -181,11 +162,6 @@ const navItems = [
         </ul>
       </nav>
 
-      <!--
-        Footer: pinned to the bottom via the surrounding flex column.
-        The credit line stays visible whether the nav has 4 items or 40,
-        and never scrolls away with the content.
-      -->
       <div class="mt-auto border-t border-gray-700 px-4 py-3 text-center">
         <p class="text-[11px] leading-snug text-gray-300 font-medium" dir="rtl">
           برمجة وتطوير: محمد إبراهيم البرشي
@@ -194,7 +170,6 @@ const navItems = [
       </div>
     </aside>
 
-    <!-- Mobile backdrop. Click anywhere to close the sidebar. -->
     <div
       id="brandzo-backdrop"
       class="md:hidden fixed inset-0 bg-black/50 z-30 hidden"
@@ -212,7 +187,6 @@ const navItems = [
       </div>
     </main>
 
-    <!-- Pillar 1: The Guide Drawer -->
     <dialog id="guide-drawer" class="w-full max-w-[90vw] md:max-w-md">
       <div class="flex items-center justify-between p-4 border-b border-brand-gold/30 bg-brand-navy/50">
         <div class="flex items-center gap-2">
@@ -239,13 +213,16 @@ const navItems = [
 
     <script is:inline>
       (function () {
-        const guideDrawer = document.getElementById('guide-drawer');
-        const openGuideBtn = document.getElementById('open-guide');
-        const closeGuideBtn = document.getElementById('close-guide');
         const sidebar = document.getElementById('brandzo-sidebar');
         const backdrop = document.getElementById('brandzo-backdrop');
         const toggle = document.getElementById('brandzo-menu-toggle');
         const close = document.getElementById('brandzo-menu-close');
+        
+        const guideDrawer = document.getElementById('guide-drawer');
+        const openGuideBtn = document.getElementById('open-guide');
+        const closeGuideBtn = document.getElementById('close-guide');
+
+        if (!sidebar || !backdrop || !toggle) return;
 
         const open = () => {
           sidebar.classList.remove('translate-x-full');
@@ -261,10 +238,53 @@ const navItems = [
           document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
         };
 
-        // Pillar 1: Guide Drawer Logic
+        // إعدادات فتح وإغلاق القائمة
+        toggle.addEventListener('click', () => {
+          if (sidebar.classList.contains('translate-x-full')) open();
+          else dismiss();
+        });
+        close && close.addEventListener('click', dismiss);
+        backdrop.addEventListener('click', dismiss);
+        
+        // إغلاق ذكي عند الضغط على الروابط في الموبايل
+        const sidebarActions = sidebar.querySelectorAll('a, button:not(#brandzo-menu-toggle):not(#brandzo-menu-close)');
+        sidebarActions.forEach(action => {
+          action.addEventListener('click', () => {
+            if (window.innerWidth < 768) {
+              setTimeout(dismiss, 50);
+            }
+          });
+        });
+
+        // زر الهروب (Escape)
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            dismiss();
+            if (guideDrawer && guideDrawer.hasAttribute('open')) {
+              guideDrawer.close();
+              document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
+            }
+          }
+        });
+
+        // مزامنة حجم الشاشة للكمبيوتر والموبايل
+        const mql = window.matchMedia('(min-width: 768px)');
+        const sync = () => {
+          if (mql.matches) {
+            sidebar.classList.remove('translate-x-full');
+            backdrop.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
+          } else {
+            sidebar.classList.add('translate-x-full');
+          }
+        };
+        mql.addEventListener('change', sync);
+        sync(); // تشغيل فوري للمزامنة
+        
+        // إعدادات الدليل التشغيلي
         if (guideDrawer && openGuideBtn && closeGuideBtn) {
           openGuideBtn.addEventListener('click', () => {
-            dismiss();
+            dismiss(); 
             guideDrawer.showModal();
             document.body.classList.add('overflow-hidden', 'md:overflow-auto');
           });
@@ -278,48 +298,6 @@ const navItems = [
               document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
             }
           });
-        }
-
-        if (sidebar && backdrop && toggle) {
-          toggle.addEventListener('click', () => {
-            if (sidebar.classList.contains('translate-x-full')) open();
-            else dismiss();
-          });
-          close && close.addEventListener('click', dismiss);
-          backdrop.addEventListener('click', dismiss);
-
-          // Auto-close sidebar on ANY link or button click inside (MOBILE ONLY)
-          const sidebarActions = sidebar.querySelectorAll('a, button');
-          sidebarActions.forEach(action => {
-            action.addEventListener('click', () => {
-              if (window.innerWidth < 768) {
-                setTimeout(dismiss, 50);
-              }
-            });
-          });
-
-          document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-              dismiss();
-              if (guideDrawer && guideDrawer.hasAttribute('open')) {
-                guideDrawer.close();
-                document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
-              }
-            }
-          });
-
-          const mql = window.matchMedia('(min-width: 768px)');
-          const sync = () => {
-            if (mql.matches) {
-              sidebar.classList.remove('translate-x-full');
-              backdrop.classList.add('hidden');
-              document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
-            } else {
-              sidebar.classList.add('translate-x-full');
-            }
-          };
-          mql.addEventListener('change', sync);
-          sync();
         }
       })();
     </script>
