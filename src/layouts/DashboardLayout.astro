@@ -35,35 +35,66 @@ const navItems = [
         background-color: #f3f4f6;
       }
 
-      /* Pillar 1: Guide Drawer Styles */
+      /* ─── Guide Drawer ──────────────────────────────────────────────────────── */
+      /*
+        الـ drawer يخرج من اليمين في واجهة RTL.
+        نستخدم translateX(100%) للإخفاء و translateX(0) للظهور.
+        margin-inline-start: auto يضعه على يمين الشاشة بشكل صحيح بغض
+        النظر عن اتجاه النص.
+      */
       #guide-drawer {
-        margin-right: auto;
-        margin-left: 0;
-        height: 100vh;
-        max-height: 100vh;
+        /* الموضع والحجم */
+        margin-inline-start: auto; /* يدفعه لليمين في RTL */
+        margin-inline-end: 0;
+        width: min(90vw, 28rem);   /* مرن: لا يتجاوز 90% العرض ولا 448px */
+        height: 100dvh;            /* dvh يأخذ شريط العنوان في الموبايل بعين الاعتبار */
+        max-height: 100dvh;
+
+        /* المظهر */
         border: none;
-        background: rgba(26, 26, 46, 0.8);
+        border-inline-start: 2px solid #e8b830; /* حد ذهبي على يسار الـ drawer */
+        background: rgba(26, 26, 46, 0.92);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         color: white;
         box-shadow: -10px 0 30px rgba(192, 57, 43, 0.3);
-        transform: translateX(-100%);
+
+        /* الحركة: مخفي لليمين بداية */
+        transform: translateX(100%);
         transition: transform 0.3s ease-out;
+
+        /* تخطيط داخلي */
         display: flex;
         flex-direction: column;
-        border-right: 2px solid #e8b830;
       }
 
+      /* حالة الفتح */
       #guide-drawer[open] {
-        transform: translateX(0);
-        display: flex;
+        transform: translateX(0) !important; /* !important لتجاوز قيمة المتصفح الافتراضية */
+        display: flex !important;            /* بعض المتصفحات تُعيد display إلى block */
       }
 
+      /* الـ backdrop الضبابي خلف الـ dialog */
       #guide-drawer::backdrop {
         background: rgba(0, 0, 0, 0.5);
         backdrop-filter: blur(4px);
       }
 
+      /* محتوى الـ iframe: يملأ المساحة المتبقية بين الرأس والتذييل */
+      #guide-drawer .guide-body {
+        flex: 1 1 0%;
+        min-height: 0;       /* ضروري لكي يعمل flex-shrink داخل flex column */
+        overflow: hidden;
+      }
+
+      #guide-drawer .guide-body iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+      }
+
+      /* توهجات النيون */
       .neon-glow-gold {
         box-shadow: 0 0 10px rgba(232, 184, 48, 0.5), 0 0 20px rgba(232, 184, 48, 0.3);
       }
@@ -73,11 +104,16 @@ const navItems = [
       }
     </style>
   </head>
+
   <body class="min-h-screen">
+
     <!--
-      Mobile-only top bar. The hamburger toggle appears only at < md and
-      is positioned at the top-right (the natural "start" in our RTL
-      layout). It is `fixed` so it floats above the page content.
+      ═══════════════════════════════════════════════════════════
+      شريط العنوان العلوي — يظهر فقط على الموبايل (أصغر من md)
+      ═══════════════════════════════════════════════════════════
+      - fixed: يطفو فوق المحتوى ولا يُزاح عند التمرير
+      - inset-x-0: يمتد على كامل عرض الشاشة
+      - z-50: فوق المحتوى لكن تحت السايدبار (z-[70]) والـ backdrop (z-[60])
     -->
     <header
       id="brandzo-mobile-header"
@@ -104,14 +140,19 @@ const navItems = [
     </header>
 
     <!--
-      Sidebar. Slides in from the right (RTL) on mobile; permanently
-      visible at md+. Uses translate-x for the off-canvas state so the
-      hover/focus styles stay live and we don't have to remount on resize.
+      ═══════════════════════════════════════════════════════════
+      السايدبار الجانبي
+      ═══════════════════════════════════════════════════════════
+      - موبايل: مخفي خارج الشاشة عبر translate-x-full (RTL: خارج اليمين)
+      - سطح مكتب (md+): ثابت ومرئي دائماً عبر md:translate-x-0
+      - right-0: مثبت على يمين الشاشة (صحيح لـ RTL)
+      - z-[70]: فوق الـ backdrop (z-[60]) وتحت الـ dialog
     -->
     <aside
       id="brandzo-sidebar"
       class="fixed top-0 right-0 w-64 max-w-[85vw] h-[100dvh] bg-brand-navy text-white shadow-xl z-[70] flex flex-col transform translate-x-full md:translate-x-0 transition-transform duration-200 ease-out"
     >
+      <!-- رأس السايدبار: شعار + زر الإغلاق في الموبايل -->
       <div class="p-6 border-b border-gray-700 flex items-center justify-between gap-3 sticky top-0 bg-brand-navy z-[80]">
         <div class="flex items-center gap-3">
           <div
@@ -121,6 +162,7 @@ const navItems = [
           </div>
           <h1 class="text-xl font-bold tracking-tight">Brandzo ERP</h1>
         </div>
+        <!-- زر الإغلاق: يظهر فقط في الموبايل -->
         <button
           id="brandzo-menu-close"
           type="button"
@@ -131,11 +173,7 @@ const navItems = [
         </button>
       </div>
 
-      <!--
-        Quick navigation: a primary "back to dashboard home" button and a
-        secondary "back to landing page" link. Sits above the main nav so
-        it stays a single tap away on mobile too.
-      -->
+      <!-- روابط التنقل السريع -->
       <div class="px-4 mt-4 space-y-2">
         <a
           href={`${base}/dashboard`}
@@ -153,6 +191,7 @@ const navItems = [
         </a>
       </div>
 
+      <!-- قائمة التنقل الرئيسية -->
       <nav class="mt-4 px-4 flex-1 overflow-y-auto">
         <ul class="space-y-1">
           {
@@ -168,11 +207,13 @@ const navItems = [
               </li>
             ))
           }
-          <!-- Pillar 1: Guide Trigger -->
+
+          <!-- زر فتح الدليل التشغيلي -->
           <li>
             <button
               id="open-guide"
               class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors text-right"
+              type="button"
             >
               <Icon name="bookOpen" class="text-brand-gold" />
               <span class="font-medium">الدليل التشغيلي</span>
@@ -181,11 +222,7 @@ const navItems = [
         </ul>
       </nav>
 
-      <!--
-        Footer: pinned to the bottom via the surrounding flex column.
-        The credit line stays visible whether the nav has 4 items or 40,
-        and never scrolls away with the content.
-      -->
+      <!-- تذييل السايدبار: مثبت في الأسفل -->
       <div class="mt-auto border-t border-gray-700 px-4 py-3 text-center">
         <p class="text-[11px] leading-snug text-gray-300 font-medium" dir="rtl">
           برمجة وتطوير: محمد إبراهيم البرشي
@@ -194,53 +231,73 @@ const navItems = [
       </div>
     </aside>
 
-    <!-- Mobile backdrop. Click anywhere to close the sidebar. -->
+    <!--
+      Backdrop: طبقة شبه شفافة خلف السايدبار في الموبايل.
+      النقر عليها يُغلق السايدبار.
+      z-[60]: تحت السايدبار (z-[70]) وفوق المحتوى.
+    -->
     <div
       id="brandzo-backdrop"
       class="md:hidden fixed inset-0 bg-black/50 z-[60] hidden"
       aria-hidden="true"
-    >
-    </div>
+    ></div>
 
     <!--
-      Main content. No right margin on mobile (sidebar is off-canvas);
-      mr-64 at md+ to leave room for the always-visible sidebar.
+      ═══════════════════════════════════════════════════════════
+      المحتوى الرئيسي
+      ═══════════════════════════════════════════════════════════
+      - موبايل: padding-top يساوي ارتفاع شريط العنوان (h-14 = 56px ≈ pt-16)
+        نستخدم pt-16 (64px) لإعطاء هامش آمن إضافي.
+      - سطح مكتب: md:pt-8 يلغي الـ padding الزائد (لا يوجد header ثابت).
+      - md:mr-64: هامش يمين بعرض السايدبار لمنع التداخل.
     -->
-    <main class="md:mr-64 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pt-20 md:pt-8">
+    <main class="md:mr-64 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pt-16 md:pt-8">
       <div class="max-w-7xl mx-auto">
         <slot />
       </div>
     </main>
 
-    <!-- Pillar 1: The Guide Drawer -->
-    <dialog id="guide-drawer" class="w-full max-w-[90vw] md:max-w-md">
-      <div class="flex items-center justify-between p-4 border-b border-brand-gold/30 bg-brand-navy/50">
+    <!--
+      ═══════════════════════════════════════════════════════════
+      الدليل التشغيلي — dialog يخرج من اليمين
+      ═══════════════════════════════════════════════════════════
+      لا نضع height هنا مباشرةً لأن CSS يتكفل بـ h: 100dvh
+    -->
+    <dialog id="guide-drawer">
+      <!-- رأس الـ drawer -->
+      <div class="flex items-center justify-between p-4 border-b border-brand-gold/30 bg-brand-navy/50 flex-shrink-0">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 bg-brand-gold rounded flex items-center justify-center text-brand-navy shadow-lg neon-glow-gold">
             <Icon name="bookOpen" size={18} />
           </div>
           <h2 class="text-xl font-bold text-brand-gold">الدليل التشغيلي</h2>
         </div>
-        <button id="close-guide" class="p-2 hover:bg-white/10 rounded-full transition-colors">
+        <button id="close-guide" type="button" class="p-2 hover:bg-white/10 rounded-full transition-colors" aria-label="إغلاق الدليل">
           <Icon name="close" size={20} />
         </button>
       </div>
-      <div class="flex-1 overflow-hidden">
+
+      <!-- جسم الـ drawer: الـ iframe يملأ المساحة المتاحة -->
+      <div class="guide-body">
         <iframe
           src={`${base}/Brandzo_Operational_Guide.html`}
-          class="w-full h-full border-none"
-          title="Operational Guide"
+          title="الدليل التشغيلي"
+          loading="lazy"
         ></iframe>
       </div>
-      <div class="p-4 border-t border-brand-gold/30 bg-brand-navy/50 text-center text-xs text-gray-400">
+
+      <!-- تذييل الـ drawer -->
+      <div class="p-4 border-t border-brand-gold/30 bg-brand-navy/50 text-center text-xs text-gray-400 flex-shrink-0">
         Brandzo ERP 2026 - Operational Excellence
       </div>
     </dialog>
 
     <script is:inline>
       (function () {
-        // Pillar 1: Guide Drawer Logic
-        const guideDrawer = document.getElementById('guide-drawer');
+        'use strict';
+
+        /* ─── 1. الدليل التشغيلي (Guide Drawer) ─────────────────────────────── */
+        const guideDrawer  = document.getElementById('guide-drawer');
         const openGuideBtn = document.getElementById('open-guide');
         const closeGuideBtn = document.getElementById('close-guide');
 
@@ -248,56 +305,83 @@ const navItems = [
           openGuideBtn.addEventListener('click', () => {
             guideDrawer.showModal();
           });
+
           closeGuideBtn.addEventListener('click', () => {
             guideDrawer.close();
           });
-          // Close on backdrop click
+
+          /*
+            إغلاق الـ drawer عند النقر على الـ backdrop.
+            e.target === guideDrawer تعني أن المستخدم نقر خارج محتوى الـ dialog.
+          */
           guideDrawer.addEventListener('click', (e) => {
             if (e.target === guideDrawer) guideDrawer.close();
           });
         }
 
-        const sidebar = document.getElementById('brandzo-sidebar');
+        /* ─── 2. السايدبار على الموبايل ──────────────────────────────────────── */
+        const sidebar  = document.getElementById('brandzo-sidebar');
         const backdrop = document.getElementById('brandzo-backdrop');
-        const toggle = document.getElementById('brandzo-menu-toggle');
-        const close = document.getElementById('brandzo-menu-close');
+        const toggle   = document.getElementById('brandzo-menu-toggle');
+        const closeBtn = document.getElementById('brandzo-menu-close');
+
         if (!sidebar || !backdrop || !toggle) return;
 
-        const open = () => {
+        /** فتح السايدبار */
+        function openSidebar() {
           sidebar.classList.remove('translate-x-full');
           backdrop.classList.remove('hidden');
           toggle.setAttribute('aria-expanded', 'true');
-          document.body.classList.add('overflow-hidden', 'md:overflow-auto');
-        };
-        const dismiss = () => {
+          /*
+            نمنع تمرير الصفحة خلف السايدبار عبر style مباشر بدلاً من
+            Tailwind classes الديناميكية (التي لا تُولَّد إلا عند وجودها
+            في HTML وقت البناء).
+          */
+          document.body.style.overflow = 'hidden';
+        }
+
+        /** إغلاق السايدبار */
+        function closeSidebar() {
           sidebar.classList.add('translate-x-full');
           backdrop.classList.add('hidden');
           toggle.setAttribute('aria-expanded', 'false');
-          document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
-        };
+          document.body.style.overflow = '';
+        }
 
         toggle.addEventListener('click', () => {
-          if (sidebar.classList.contains('translate-x-full')) open();
-          else dismiss();
+          const isOpen = !sidebar.classList.contains('translate-x-full');
+          if (isOpen) closeSidebar();
+          else openSidebar();
         });
-        close && close.addEventListener('click', dismiss);
-        backdrop.addEventListener('click', dismiss);
+
+        if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+        backdrop.addEventListener('click', closeSidebar);
+
+        /* إغلاق عند ضغط Escape (إلا لو كان الـ guide drawer مفتوحاً) */
         document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape') dismiss();
+          if (e.key === 'Escape' && !guideDrawer?.open) closeSidebar();
         });
-        // Re-show the sidebar (and clear off-canvas transform) when the user
-        // resizes back up to desktop, so it is always pinned at md+.
+
+        /*
+          مزامنة حالة السايدبار عند تغيير حجم النافذة.
+          - سطح مكتب (md+): السايدبار مرئي دائماً → نُزيل translate-x-full
+          - موبايل: نُعيد translate-x-full لو كانت النافذة صغُرت فجأة
+        */
         const mql = window.matchMedia('(min-width: 768px)');
-        const sync = () => {
-          if (mql.matches) {
+
+        function syncSidebarToBreakpoint(e) {
+          if (e.matches) {
+            /* انتقلنا إلى سطح المكتب */
             sidebar.classList.remove('translate-x-full');
             backdrop.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
+            document.body.style.overflow = '';
           } else {
+            /* رجعنا للموبايل: أخفِ السايدبار */
             sidebar.classList.add('translate-x-full');
           }
-        };
-        mql.addEventListener('change', sync);
+        }
+
+        mql.addEventListener('change', syncSidebarToBreakpoint);
       })();
     </script>
   </body>
