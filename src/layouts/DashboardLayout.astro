@@ -25,17 +25,34 @@ const navItems = [
     <title>{title ? `${title} - Brandzo ERP 2026` : 'Brandzo ERP 2026'}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
+    
+    <style is:global>
       body {
         font-family: 'Cairo', sans-serif;
         background-color: #f3f4f6;
       }
 
-      /* Pillar 1: Guide Drawer Styles */
+      /* إعدادات الباركود والطباعة - تم استعادتها */
+      @media print {
+        .no-print { display: none !important; }
+        body { background-color: white !important; }
+        .print-only { display: block !important; }
+        .barcode-card {
+          break-inside: avoid;
+          page-break-inside: avoid;
+          border: 1px solid #000 !important;
+          margin-bottom: 0.5rem;
+        }
+      }
+
+      /* تنسيق بطاقات الباركود */
+      .barcode-container svg {
+        width: 100% !important;
+        height: auto !important;
+      }
+
+      /* Guide Drawer Styles */
       #guide-drawer {
         margin-right: auto;
         margin-left: 0;
@@ -44,7 +61,6 @@ const navItems = [
         border: none;
         background: rgba(26, 26, 46, 0.8);
         backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
         color: white;
         box-shadow: -10px 0 30px rgba(192, 57, 43, 0.3);
         transform: translateX(-100%);
@@ -54,160 +70,65 @@ const navItems = [
         border-right: 2px solid #e8b830;
       }
 
-      #guide-drawer[open] {
-        transform: translateX(0);
-        display: flex;
-      }
-
-      #guide-drawer::backdrop {
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(4px);
-      }
-
-      .neon-glow-gold {
-        box-shadow: 0 0 10px rgba(232, 184, 48, 0.5), 0 0 20px rgba(232, 184, 48, 0.3);
-      }
-
-      .neon-glow-red {
-        box-shadow: 0 0 10px rgba(192, 57, 43, 0.5), 0 0 20px rgba(192, 57, 43, 0.3);
-      }
+      #guide-drawer[open] { transform: translateX(0); display: flex; }
+      #guide-drawer::backdrop { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); }
+      .neon-glow-gold { box-shadow: 0 0 10px rgba(232, 184, 48, 0.5); }
     </style>
   </head>
   <body class="min-h-screen">
 
-    <header
-      id="brandzo-mobile-header"
-      class="md:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between bg-brand-navy text-white px-4 py-3 shadow-lg"
-    >
+    <header id="brandzo-mobile-header" class="no-print md:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between bg-brand-navy text-white px-4 py-3 shadow-lg">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 bg-brand-red rounded-lg flex items-center justify-center font-bold text-lg shadow">
-          B
-        </div>
+        <div class="w-9 h-9 bg-brand-red rounded-lg flex items-center justify-center font-bold text-lg shadow">B</div>
         <span class="font-bold tracking-tight">Brandzo ERP</span>
       </div>
-      <button
-        id="brandzo-menu-toggle"
-        type="button"
-        aria-label="فتح القائمة"
-        aria-controls="brandzo-sidebar"
-        aria-expanded="false"
-        class="p-2 rounded-md hover:bg-gray-800 transition-colors"
-      >
-        <Icon name="menu" size={24} />
-      </button>
+      <button id="brandzo-menu-toggle" type="button" class="p-2 rounded-md hover:bg-gray-800"><Icon name="menu" size={24} /></button>
     </header>
 
-    <aside
-      id="brandzo-sidebar"
-      class="fixed inset-y-0 right-0 w-64 max-w-[85vw] bg-brand-navy text-white shadow-xl z-40 flex flex-col transform translate-x-full md:translate-x-0 transition-transform duration-200 ease-out"
-    >
-      <div class="p-6 border-b border-gray-700 flex items-center justify-between gap-3">
+    <aside id="brandzo-sidebar" class="no-print fixed top-0 right-0 h-[100dvh] w-64 max-w-[85vw] bg-brand-navy text-white shadow-xl z-50 flex flex-col transform translate-x-full md:translate-x-0 transition-transform duration-200 ease-out">
+      <div class="p-6 border-b border-gray-700 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-brand-red rounded-lg flex items-center justify-center font-bold text-xl shadow-lg">
-            B
-          </div>
+          <div class="w-10 h-10 bg-brand-red rounded-lg flex items-center justify-center font-bold text-xl shadow-lg">B</div>
           <h1 class="text-xl font-bold tracking-tight">Brandzo ERP</h1>
         </div>
-        <button
-          id="brandzo-menu-close"
-          type="button"
-          aria-label="إغلاق القائمة"
-          class="md:hidden p-2 rounded-md hover:bg-gray-800 transition-colors"
-        >
-          <Icon name="close" size={20} />
-        </button>
-      </div>
-
-      <div class="px-4 mt-4 space-y-2">
-        <a
-          href={`${base}/dashboard`}
-          class="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-brand-red hover:bg-brand-red-dark text-white font-bold text-sm shadow-md transition-colors"
-        >
-          <Icon name="grid" size={18} />
-          <span>لوحة التحكم</span>
-        </a>
-        <a
-          href={`${base}/`}
-          class="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg border border-gray-600 hover:border-brand-red hover:text-brand-red text-gray-300 font-medium text-sm transition-colors"
-        >
-          <Icon name="home" size={16} />
-          <span>الصفحة الرئيسية</span>
-        </a>
+        <button id="brandzo-menu-close" class="md:hidden p-2 rounded-md hover:bg-gray-800"><Icon name="close" size={20} /></button>
       </div>
 
       <nav class="mt-4 px-4 flex-1 overflow-y-auto">
         <ul class="space-y-1">
-          {
-            navItems.map((item) => (
-              <li>
-                <a
-                  href={item.href}
-                  class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors"
-                >
-                  <Icon name={item.icon} class="text-brand-red" />
-                  <span class="font-medium">{item.label}</span>
-                </a>
-              </li>
-            ))
-          }
+          {navItems.map((item) => (
+            <li>
+              <a href={item.href} class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors">
+                <Icon name={item.icon} class="text-brand-red" />
+                <span class="font-medium">{item.label}</span>
+              </a>
+            </li>
+          ))}
           <li>
-            <button
-              id="open-guide"
-              class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors text-right"
-            >
+            <button id="open-guide" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 text-right">
               <Icon name="bookOpen" class="text-brand-gold" />
               <span class="font-medium">الدليل التشغيلي</span>
             </button>
           </li>
         </ul>
       </nav>
-
-      <div class="mt-auto border-t border-gray-700 px-4 py-3 text-center">
-        <p class="text-[11px] leading-snug text-gray-300 font-medium" dir="rtl">
-          برمجة وتطوير: محمد إبراهيم البرشي
-        </p>
-        <p class="text-[10px] text-gray-500 mt-1">Brandzo ERP 2026 &copy;</p>
-      </div>
     </aside>
 
-    <div
-      id="brandzo-backdrop"
-      class="md:hidden fixed inset-0 bg-black/50 z-30 hidden"
-      aria-hidden="true"
-    >
-    </div>
+    <div id="brandzo-backdrop" class="no-print md:hidden fixed inset-0 bg-black/50 z-40 hidden"></div>
 
-    <!--
-      Main content. No right margin on mobile (sidebar is off-canvas);
-      md:mr-64 at md+ to leave room for the always-visible sidebar and prevent overlap.
-    -->
-    <main class="md:mr-64 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pt-20 md:pt-8">
+    <main class="md:mr-64 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pt-20 md:pt-8 transition-all">
       <div class="max-w-7xl mx-auto">
         <slot />
       </div>
     </main>
 
-    <dialog id="guide-drawer" class="w-full max-w-[90vw] md:max-w-md">
+    <dialog id="guide-drawer" class="no-print w-full max-w-[90vw] md:max-w-md">
       <div class="flex items-center justify-between p-4 border-b border-brand-gold/30 bg-brand-navy/50">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 bg-brand-gold rounded flex items-center justify-center text-brand-navy shadow-lg neon-glow-gold">
-            <Icon name="bookOpen" size={18} />
-          </div>
-          <h2 class="text-xl font-bold text-brand-gold">الدليل التشغيلي</h2>
-        </div>
-        <button id="close-guide" class="p-2 hover:bg-white/10 rounded-full transition-colors">
-          <Icon name="close" size={20} />
-        </button>
+        <h2 class="text-xl font-bold text-brand-gold">الدليل التشغيلي</h2>
+        <button id="close-guide" class="p-2 hover:bg-white/10 rounded-full"><Icon name="close" size={20} /></button>
       </div>
       <div class="flex-1 overflow-hidden">
-        <iframe
-          src={`${base}/Brandzo_Operational_Guide.html`}
-          class="w-full h-full border-none"
-          title="Operational Guide"
-        ></iframe>
-      </div>
-      <div class="p-4 border-t border-brand-gold/30 bg-brand-navy/50 text-center text-xs text-gray-400">
-        Brandzo ERP 2026 - Operational Excellence
+        <iframe src={`${base}/Brandzo_Operational_Guide.html`} class="w-full h-full border-none"></iframe>
       </div>
     </dialog>
 
@@ -217,7 +138,6 @@ const navItems = [
         const backdrop = document.getElementById('brandzo-backdrop');
         const toggle = document.getElementById('brandzo-menu-toggle');
         const close = document.getElementById('brandzo-menu-close');
-        
         const guideDrawer = document.getElementById('guide-drawer');
         const openGuideBtn = document.getElementById('open-guide');
         const closeGuideBtn = document.getElementById('close-guide');
@@ -227,77 +147,37 @@ const navItems = [
         const open = () => {
           sidebar.classList.remove('translate-x-full');
           backdrop.classList.remove('hidden');
-          toggle.setAttribute('aria-expanded', 'true');
           document.body.classList.add('overflow-hidden', 'md:overflow-auto');
         };
 
         const dismiss = () => {
           sidebar.classList.add('translate-x-full');
           backdrop.classList.add('hidden');
-          toggle.setAttribute('aria-expanded', 'false');
           document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
         };
 
-        // إعدادات فتح وإغلاق القائمة
-        toggle.addEventListener('click', () => {
-          if (sidebar.classList.contains('translate-x-full')) open();
-          else dismiss();
-        });
+        toggle.addEventListener('click', open);
         close && close.addEventListener('click', dismiss);
         backdrop.addEventListener('click', dismiss);
-        
-        // إغلاق ذكي عند الضغط على الروابط في الموبايل
-        const sidebarActions = sidebar.querySelectorAll('a, button:not(#brandzo-menu-toggle):not(#brandzo-menu-close)');
-        sidebarActions.forEach(action => {
-          action.addEventListener('click', () => {
-            if (window.innerWidth < 768) {
-              setTimeout(dismiss, 50);
-            }
-          });
-        });
 
-        // زر الهروب (Escape)
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape') {
-            dismiss();
-            if (guideDrawer && guideDrawer.hasAttribute('open')) {
-              guideDrawer.close();
-              document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
-            }
-          }
-        });
-
-        // مزامنة حجم الشاشة للكمبيوتر والموبايل
+        // Auto-sync for screen resize
         const mql = window.matchMedia('(min-width: 768px)');
         const sync = () => {
           if (mql.matches) {
             sidebar.classList.remove('translate-x-full');
             backdrop.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
+            document.body.classList.remove('overflow-hidden');
           } else {
             sidebar.classList.add('translate-x-full');
           }
         };
         mql.addEventListener('change', sync);
-        sync(); // تشغيل فوري للمزامنة
-        
-        // إعدادات الدليل التشغيلي
-        if (guideDrawer && openGuideBtn && closeGuideBtn) {
-          openGuideBtn.addEventListener('click', () => {
-            dismiss(); 
-            guideDrawer.showModal();
-            document.body.classList.add('overflow-hidden', 'md:overflow-auto');
-          });
-          closeGuideBtn.addEventListener('click', () => {
-            guideDrawer.close();
-            document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
-          });
-          guideDrawer.addEventListener('click', (e) => {
-            if (e.target === guideDrawer) {
-              guideDrawer.close();
-              document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
-            }
-          });
+        sync();
+
+        // Guide Drawer Logic
+        if (guideDrawer && openGuideBtn) {
+          openGuideBtn.addEventListener('click', () => { dismiss(); guideDrawer.showModal(); });
+          closeGuideBtn.addEventListener('click', () => guideDrawer.close());
         }
       })();
     </script>
