@@ -289,24 +289,24 @@ const BrandzoDashboard = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="p-4 border border-gray-200 rounded-lg">
-              <h3 className="font-bold text-brand-red mb-2">Zero-Tolerance Compliance</h3>
-              <p className="text-sm text-gray-600">No stock movement without digital/physical documentation.</p>
+              <h3 className="font-bold text-brand-red mb-2">عمليات تعتمد نظام FEFO<span className="block text-sm font-normal text-gray-400 mt-1">FEFO-Driven Operations</span></h3>
+              <p className="text-sm text-gray-600">استراتيجية سحب آلية تعتمد على مبدأ (ما ينتهي تاريخه أولاً، يُصرف أولاً).</p>
             </div>
             <div className="p-4 border border-gray-200 rounded-lg">
-              <h3 className="font-bold text-brand-red mb-2">HACCP Certified Logic</h3>
-              <p className="text-sm text-gray-600">Strict temperature gatekeeping (4°C / -18°C) and 75% minimum remaining shelf-life requirement upon receipt.</p>
+              <h3 className="font-bold text-brand-red mb-2">منطق معتمد بمعايير HACCP<span className="block text-sm font-normal text-gray-400 mt-1">HACCP Certified Logic</span></h3>
+              <p className="text-sm text-gray-600">رقابة صارمة على درجات الحرارة (4 مئوية / -18 مئوية) واشتراط 75% كحد أدنى للعمر الافتراضي المتبقي عند الاستلام.</p>
             </div>
             <div className="p-4 border border-gray-200 rounded-lg">
-              <h3 className="font-bold text-brand-red mb-2">FEFO-Driven Operations</h3>
-              <p className="text-sm text-gray-600">Automated picking strategy based on first-expired-first-out.</p>
+              <h3 className="font-bold text-brand-red mb-2">امتثال صارم (بدون تهاون)<span className="block text-sm font-normal text-gray-400 mt-1">Zero-Tolerance Compliance</span></h3>
+              <p className="text-sm text-gray-600">لا توجد حركة للمخزون بدون توثيق رقمي أو ورقي.</p>
             </div>
             <div className="p-4 border border-gray-200 rounded-lg">
-              <h3 className="font-bold text-brand-red mb-2">High-Fidelity Identification</h3>
-              <p className="text-sm text-gray-600">Instant generation of ready-to-print barcode cards for every SKU.</p>
+              <h3 className="font-bold text-brand-red mb-2">مقاييس التوحيد القياسي<span className="block text-sm font-normal text-gray-400 mt-1">Standardization Metrics</span></h3>
+              <p className="text-sm text-gray-600">دقة مخزون بنسبة 98.5% ووقت دورة تشغيلية يقل عن 4 ساعات.</p>
             </div>
             <div className="p-4 border border-gray-200 rounded-lg">
-              <h3 className="font-bold text-brand-red mb-2">Standardization Metrics</h3>
-              <p className="text-sm text-gray-600">98.5% inventory accuracy and sub-4-hour cycle time.</p>
+              <h3 className="font-bold text-brand-red mb-2">تعريف عالي الدقة للأصناف<span className="block text-sm font-normal text-gray-400 mt-1">High-Fidelity Identification</span></h3>
+              <p className="text-sm text-gray-600">توليد فوري لبطاقات باركود جاهزة للطباعة لكل صنف (SKU).</p>
             </div>
           </div>
         </div>
@@ -326,23 +326,19 @@ const BrandzoDashboard = () => {
               <ul className="space-y-3 text-sm">
                 <li className="flex items-start gap-2">
                   <span className="text-red-500 mt-1">•</span>
-                  <span>HACCP CCP1: Receiving temperature ≤ 4°C for chilled, ≤ -18°C for frozen.</span>
+                  <span>نقطة التحكم الحرجة (CCP1): درجة حرارة الاستلام ≤ 4 مئوية للمبرد، و ≤ -18 مئوية للمجمد.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-red-500 mt-1">•</span>
-                  <span>HACCP CCP2: 24/7 cold storage temperature monitoring.</span>
+                  <span>نقطة التحكم الحرجة (CCP2): مراقبة درجة حرارة التخزين البارد على مدار الساعة 24/7.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-red-500 mt-1">•</span>
-                  <span>FEFO enforcement is mandatory for all outbound operations.</span>
+                  <span>تطبيق نظام FEFO إلزامي لجميع عمليات الصرف.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-red-500 mt-1">•</span>
-                  <span>Zero stock movement without complete documentation.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-red-500 mt-1">•</span>
-                  <span>No equipment operation without a valid Work Authorization.</span>
+                  <span>منع حركة المخزون نهائياً بدون توثيق كامل.</span>
                 </li>
               </ul>
             </div>
@@ -355,15 +351,15 @@ const BrandzoDashboard = () => {
               <ul className="space-y-3 text-sm">
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500 mt-1">•</span>
-                  <span>Weekly Gemba Walk assessments.</span>
+                  <span>تقييمات ميدانية أسبوعية (Gemba Walk).</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500 mt-1">•</span>
-                  <span>Daily Huddle meetings (10–15 minutes).</span>
+                  <span>اجتماعات التنسيق اليومية (10-15 دقيقة).</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500 mt-1">•</span>
-                  <span>Cycle count strategy based on ABC classification.</span>
+                  <span>استراتيجية الجرد الدوري بناءً على تصنيف ABC.</span>
                 </li>
               </ul>
             </div>
