@@ -1,6 +1,6 @@
 /**
- * Brandzo Smart Forms Utility
- * Handles localStorage persistence, barcode scanning, and print optimization.
+ * Brandzo Smart Forms Utility (SAFE VERSION)
+ * Handles localStorage persistence, barcode scanning, print optimization, and dynamic rows.
  */
 
 (function () {
@@ -13,11 +13,11 @@
     setupAutoFill();
     injectLandscapePrint();
     setupPrintValidation();
+    setupDynamicRows();
   });
 
   // 2. Setup Event Listeners
   function setupEventListeners() {
-    // Listen for all input events (captures barcode scanners)
     document.addEventListener('input', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
         saveDraft();
@@ -26,7 +26,6 @@
       }
     });
 
-    // Special handling for barcode scanning in tables
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && e.target.closest('table')) {
         saveDraft();
@@ -43,14 +42,11 @@
       if (input.id || input.name) {
         formData[input.id || input.name] = input.value;
       } else {
-        // Fallback for inputs without ID/name
         formData[`input_index_${index}`] = input.value;
       }
     });
 
-    // Save table data with table identity
     formData.tables = getTableData();
-
     localStorage.setItem(`brandzo_draft_${FORM_ID}`, JSON.stringify(formData));
   }
 
@@ -113,12 +109,26 @@
 
   function restoreTableData(tableData) {
     const tables = document.querySelectorAll('table');
-
     tableData.forEach(tData => {
       const table = tables[tData.tableIndex];
       if (!table) return;
 
-      const trs = table.querySelectorAll('tbody tr');
+      const tbody = table.querySelector('tbody');
+      if (!tbody) return;
+
+      const currentRowsCount = tbody.querySelectorAll('tr').length;
+      const targetRowsCount = tData.rows.length;
+
+      // [تم الإصلاح هنا] إضافة الصفوف المفقودة باستخدام for loop وزر أمان لمنع التعليق
+      if (targetRowsCount > currentRowsCount) {
+        const rowsToAdd = targetRowsCount - currentRowsCount;
+        for (let i = 0; i < rowsToAdd; i++) {
+          const added = addNewRow(table);
+          if (!added) break; // خروج طوارئ إذا فشلت الإضافة
+        }
+      }
+
+      const trs = tbody.querySelectorAll('tr');
       tData.rows.forEach(rData => {
         const tr = trs[rData.rowIndex];
         if (tr) {
@@ -135,10 +145,9 @@
     });
   }
 
-  // 6. Print Persistence (Force value into attribute/text)
+  // 6. Print Persistence & Sync
   function syncToPrint(el) {
     el.setAttribute('value', el.value);
-
     const parent = el.parentElement;
     if (parent && (parent.tagName === 'TD' || parent.classList.contains('print-sync'))) {
       let printSpan = parent.querySelector('.print-only-text');
@@ -146,15 +155,13 @@
         printSpan = document.createElement('span');
         printSpan.className = 'print-only-text hidden print:block';
         parent.appendChild(printSpan);
-        parent.classList.add('has-print-text');
       }
       printSpan.innerText = el.value;
     }
   }
 
-  // 7. Auto-calculation for Qty × Price = Total
+  // 7. Auto-calculation
   function handleAutoCalculation(target) {
-    // Check if target is qty or price input in a table row
     if (target.classList.contains('item-qty') || target.classList.contains('item-price')) {
       const row = target.closest('tr');
       if (!row) return;
@@ -167,25 +174,69 @@
         const qty = parseFloat(qtyInput.value) || 0;
         const price = parseFloat(priceInput.value) || 0;
         const total = qty * price;
-
         totalInput.value = total.toFixed(2);
         syncToPrint(totalInput);
       }
     }
   }
 
-  // 8. Validation for mandatory fields before print/save
-  function validateForm() {
-    // إلغاء التحقق الإلزامي — الطباعة مفتوحة دائماً
-    return true;
+  // 8. Dynamic Rows Feature 
+  function setupDynamicRows() {
+    document.querySelectorAll('table').forEach(function (table) {
+      const tbody = table.querySelector('tbody');
+      if (!tbody) return;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = '+ إضافة صف';
+      btn.className = 'no-print';
+      btn.style.cssText = 'margin:6px 0; padding:5px 14px; background:#e65c00; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:13px; font-family:inherit;';
+
+      btn.addEventListener('click', function () {
+        addNewRow(table);
+        saveDraft(); // حفظ المسودة فوراً لتسجيل الصف الجديد
+      });
+
+      table.parentNode.insertBefore(btn, table.nextSibling);
+    });
   }
 
-  // 9. Setup print validation
-  function setupPrintValidation() {
-    // تم إلغاء الشرط الإلزامي — لا يتم منع الطباعة على أي أزرار
+  function addNewRow(table) {
+    const tbody = table.querySelector('tbody');
+    if (!tbody) return false;
+    
+    const lastRow = tbody.querySelector('tr:last-child');
+    if (!lastRow) return false; // [تم الإصلاح هنا] التحقق من وجود صف أساسي لنسخه
+
+    const newRow = lastRow.cloneNode(true);
+    const rowIndex = tbody.querySelectorAll('tr').length + 1;
+
+    newRow.querySelectorAll('input, textarea, select').forEach(function (el) {
+      if (el.type === 'number') el.value = '';
+      else if (el.tagName === 'SELECT') el.selectedIndex = 0;
+      else el.value = '';
+      el.removeAttribute('value');
+      
+      // [تم الإصلاح هنا] مسح أي نصوص طباعة قديمة تم نسخها بالخطأ مع الصف
+      const parent = el.parentElement;
+      if (parent) {
+         const oldSpan = parent.querySelector('.print-only-text');
+         if (oldSpan) oldSpan.remove();
+      }
+    });
+
+    const firstTd = newRow.querySelector('td:first-child');
+    if (firstTd && !firstTd.querySelector('input') && /^\d+$/.test(firstTd.textContent.trim())) {
+      firstTd.textContent = rowIndex;
+    }
+
+    tbody.appendChild(newRow);
+    return true; // تمت الإضافة بنجاح
   }
 
-  // 7. Auto-fill logic
+  // 9. Extra Utils
+  function setupPrintValidation() { /* إلغاء القيود */ }
+
   function setupAutoFill() {
     const dateInput = document.querySelector('input[type="date"]');
     if (dateInput && !dateInput.value) {
@@ -195,12 +246,10 @@
   }
 
   function injectLandscapePrint() {
-    var existingStyle = document.getElementById('brandzo-landscape-print');
-    if (existingStyle) return;
-
-    var style = document.createElement('style');
+    if (document.getElementById('brandzo-landscape-print')) return;
+    const style = document.createElement('style');
     style.id = 'brandzo-landscape-print';
-    style.textContent = '@page { size: A4 landscape; margin: 10mm; }';
+    style.textContent = '@page { size: A4 landscape; margin: 10mm; } @media print { .no-print { display: none !important; } }';
     document.head.appendChild(style);
   }
 
