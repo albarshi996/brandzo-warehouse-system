@@ -14,6 +14,7 @@ const WarehouseManager = () => {
   const [formData, setFormData] = useState({ code: '', name: '', manager: '' });
   const [loading, setLoading] = useState(true);
   const [statusMsg, setStatusMsg] = useState({ type: '', text: '' });
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // 1. جلب البيانات في الوقت الحقيقي
   useEffect(() => {
@@ -35,6 +36,19 @@ const WarehouseManager = () => {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = 'لديك تغييرات غير محفوظة. هل أنت متأكد من أنك تريد المغادرة؟';
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
   // 2. وظيفة الإضافة
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -53,12 +67,18 @@ const WarehouseManager = () => {
 
       setFormData({ code: '', name: '', manager: '' });
       setStatusMsg({ type: 'success', text: 'تمت إضافة المستودع بنجاح ✅' });
+      setHasUnsavedChanges(false);
 
       // إخفاء رسالة النجاح بعد 3 ثوانٍ
       setTimeout(() => setStatusMsg({ type: '', text: '' }), 3000);
     } catch (error) {
       setStatusMsg({ type: 'error', text: 'فشل الحفظ: ' + error.message });
     }
+  };
+
+  const handleInputChange = (field) => (e) => {
+    setFormData({ ...formData, [field]: e.target.value });
+    setHasUnsavedChanges(true);
   };
 
   return (
@@ -94,7 +114,7 @@ const WarehouseManager = () => {
             placeholder="كود المستودع (WH001)"
             className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-brand-red"
             value={formData.code}
-            onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+            onChange={handleInputChange('code')}
             required
           />
           <input
@@ -102,7 +122,7 @@ const WarehouseManager = () => {
             placeholder="اسم المستودع"
             className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-brand-red"
             value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            onChange={handleInputChange('name')}
             required
           />
           <input
@@ -110,7 +130,7 @@ const WarehouseManager = () => {
             placeholder="المدير المسئول"
             className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-brand-red"
             value={formData.manager}
-            onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
+            onChange={handleInputChange('manager')}
           />
           <button
             type="submit"

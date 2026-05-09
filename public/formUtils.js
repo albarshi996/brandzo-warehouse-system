@@ -11,6 +11,7 @@
     loadDraft();
     setupEventListeners();
     setupAutoFill();
+    setupPrintValidation();
   });
 
   // 2. Setup Event Listeners
@@ -20,6 +21,7 @@
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
         saveDraft();
         syncToPrint(e.target);
+        handleAutoCalculation(e.target);
       }
     });
 
@@ -147,6 +149,72 @@
       }
       printSpan.innerText = el.value;
     }
+  }
+
+  // 7. Auto-calculation for Qty × Price = Total
+  function handleAutoCalculation(target) {
+    // Check if target is qty or price input in a table row
+    if (target.classList.contains('item-qty') || target.classList.contains('item-price')) {
+      const row = target.closest('tr');
+      if (!row) return;
+
+      const qtyInput = row.querySelector('.item-qty');
+      const priceInput = row.querySelector('.item-price');
+      const totalInput = row.querySelector('.item-total');
+
+      if (qtyInput && priceInput && totalInput) {
+        const qty = parseFloat(qtyInput.value) || 0;
+        const price = parseFloat(priceInput.value) || 0;
+        const total = qty * price;
+
+        totalInput.value = total.toFixed(2);
+        syncToPrint(totalInput);
+      }
+    }
+  }
+
+  // 8. Validation for mandatory fields before print/save
+  function validateForm() {
+    const mandatoryFields = document.querySelectorAll('input[required], textarea[required]');
+    const emptyFields = [];
+
+    mandatoryFields.forEach(field => {
+      if (!field.value.trim()) {
+        emptyFields.push(field);
+        field.style.borderBottom = '2px solid #e74c3c';
+      } else {
+        field.style.borderBottom = '';
+      }
+    });
+
+    // Check for at least one filled row in tables with item-qty
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      const qtyInputs = table.querySelectorAll('.item-qty');
+      const hasFilledRow = Array.from(qtyInputs).some(input => input.value.trim() !== '');
+
+      if (!hasFilledRow && qtyInputs.length > 0) {
+        // Highlight first qty field if no rows are filled
+        qtyInputs[0].style.borderBottom = '2px solid #e74c3c';
+        emptyFields.push(qtyInputs[0]);
+      }
+    });
+
+    return emptyFields.length === 0;
+  }
+
+  // 9. Setup print validation
+  function setupPrintValidation() {
+    const printButtons = document.querySelectorAll('.print-btn, button[onclick*="print"]');
+    printButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        if (!validateForm()) {
+          e.preventDefault();
+          alert('يرجى تعبئة جميع الحقول الإلزامية قبل الطباعة أو الحفظ.');
+          return false;
+        }
+      });
+    });
   }
 
   // 7. Auto-fill logic

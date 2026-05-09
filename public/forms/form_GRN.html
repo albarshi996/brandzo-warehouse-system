@@ -309,6 +309,32 @@
             color: #444;
         }
 
+        /* Barcode Section */
+        .barcode-section {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .barcode-container {
+            text-align: center;
+        }
+        .barcode-svg {
+            width: 100%;
+            max-width: 300px;
+            height: 80px;
+            display: block;
+            margin: 0 auto 10px;
+        }
+        .barcode-text {
+            font-size: 0.8rem;
+            color: #666;
+            font-weight: 600;
+        }
+
         .note-box {
             background: #fffdf3;
             border-right: 4px solid var(--gold-light);
@@ -610,6 +636,14 @@
                     <div class="field-group"><label>اسم مشرف الاستلام (Receiver)</label><input type="text" class="field-line"></div>
                     <div class="field-group"><label>اسم فاحص الجودة (QC Inspector)</label><input type="text" class="field-line"></div>
                     <div class="field-group"><label>رقم إشعار الشحن ASN (ASN No.)</label><input type="text" class="field-line"></div>
+                </div>
+
+                <!-- Barcode Section -->
+                <div class="barcode-section">
+                    <div class="barcode-container">
+                        <svg id="grn-barcode" class="barcode-svg"></svg>
+                        <div class="barcode-text">GRN Barcode</div>
+                    </div>
                 </div>
 
                 <div class="section-title">🌡️ فحص درجة الحرارة (CCP 1) — Temperature Check</div>
@@ -1456,6 +1490,42 @@
                 if (input) openModal(input);
             });
         })();
+    </script>
+    <script src="../lib/JsBarcode.all.min.js"></script>
+    <script>
+        // Generate barcode for GRN number
+        function generateGRNBarcode() {
+            const grnInput = document.querySelector('.fields-grid .field-group:first-child input.field-line');
+            const barcodeSvg = document.getElementById('grn-barcode');
+            const grnValue = grnInput ? grnInput.value.trim() : '';
+            
+            if (grnValue && barcodeSvg) {
+                try {
+                    JsBarcode(barcodeSvg, grnValue, {
+                        format: "CODE128",
+                        width: 2,
+                        height: 60,
+                        displayValue: true,
+                        fontSize: 14,
+                        margin: 10
+                    });
+                } catch (e) {
+                    console.error('Barcode generation failed:', e);
+                }
+            }
+        }
+
+        // Generate barcode on input change
+        document.addEventListener('DOMContentLoaded', function() {
+            const grnInput = document.querySelector('.fields-grid .field-group:first-child input.field-line');
+            if (grnInput) {
+                grnInput.addEventListener('input', generateGRNBarcode);
+                // Generate initial barcode if value exists
+                if (grnInput.value.trim()) {
+                    generateGRNBarcode();
+                }
+            }
+        });
     </script>
 <script src="../formUtils.js"></script></body>
 </html>

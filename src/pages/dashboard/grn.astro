@@ -1,14 +1,15 @@
 ---
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
-import ComingSoon from '../../components/ui/ComingSoon.astro';
 ---
 
-<DashboardLayout title="المشتريات والاستلام">
-  <ComingSoon
-    title="المشتريات والاستلام (GRN)"
-    headline="قريباً: إدارة المشتريات وسندات الاستلام"
-    description="سيتم هنا ربط أوامر الشراء (PO) بسندات الاستلام المخزنية (GRN) مع دعم الفحص عبر الباركود."
-    icon="fileUp"
-    iconBadgeClass="bg-green-50 text-green-600"
-  />
+<DashboardLayout title="المشتريات والاستلام" showGuide={true}>
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <iframe
+        src="/forms/form_GRN.html"
+        class="w-full h-screen border-0"
+        title="سند الاستلام (GRN)"
+      ></iframe>
+    </div>
+  </div>
 </DashboardLayout>

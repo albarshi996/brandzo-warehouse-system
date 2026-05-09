@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import Icon from '../components/ui/Icon.astro';
 
-const { title } = Astro.props;
+const { title, showGuide = false } = Astro.props;
 
 const base = import.meta.env.BASE_URL.endsWith('/')
   ? import.meta.env.BASE_URL.slice(0, -1)
@@ -209,16 +209,18 @@ const navItems = [
           }
 
           <!-- زر فتح الدليل التشغيلي -->
-          <li>
-            <button
-              id="open-guide"
-              class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors text-right"
-              type="button"
-            >
-              <Icon name="bookOpen" class="text-brand-gold" />
-              <span class="font-medium">الدليل التشغيلي</span>
-            </button>
-          </li>
+          {showGuide && (
+            <li>
+              <button
+                id="open-guide"
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors text-right"
+                type="button"
+              >
+                <Icon name="bookOpen" class="text-brand-gold" />
+                <span class="font-medium">الدليل التشغيلي</span>
+              </button>
+            </li>
+          )}
         </ul>
       </nav>
 
@@ -263,61 +265,67 @@ const navItems = [
       ═══════════════════════════════════════════════════════════
       لا نضع height هنا مباشرةً لأن CSS يتكفل بـ h: 100dvh
     -->
-    <dialog id="guide-drawer">
-      <!-- رأس الـ drawer -->
-      <div class="flex items-center justify-between p-4 border-b border-brand-gold/30 bg-brand-navy/50 flex-shrink-0">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 bg-brand-gold rounded flex items-center justify-center text-brand-navy shadow-lg neon-glow-gold">
-            <Icon name="bookOpen" size={18} />
+    {showGuide && (
+      <dialog id="guide-drawer">
+        <!-- رأس الـ drawer -->
+        <div class="flex items-center justify-between p-4 border-b border-brand-gold/30 bg-brand-navy/50 flex-shrink-0">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-brand-gold rounded flex items-center justify-center text-brand-navy shadow-lg neon-glow-gold">
+              <Icon name="bookOpen" size={18} />
+            </div>
+            <h2 class="text-xl font-bold text-brand-gold">الدليل التشغيلي</h2>
           </div>
-          <h2 class="text-xl font-bold text-brand-gold">الدليل التشغيلي</h2>
+          <button id="close-guide" type="button" class="p-2 hover:bg-white/10 rounded-full transition-colors" aria-label="إغلاق الدليل">
+            <Icon name="close" size={20} />
+          </button>
         </div>
-        <button id="close-guide" type="button" class="p-2 hover:bg-white/10 rounded-full transition-colors" aria-label="إغلاق الدليل">
-          <Icon name="close" size={20} />
-        </button>
-      </div>
 
-      <!-- جسم الـ drawer: الـ iframe يملأ المساحة المتاحة -->
-      <div class="guide-body">
-        <iframe
-          src={`${base}/Brandzo_Operational_Guide.html`}
-          title="الدليل التشغيلي"
-          loading="lazy"
-        ></iframe>
-      </div>
+        <!-- جسم الـ drawer: الـ iframe يملأ المساحة المتاحة -->
+        <div class="guide-body">
+          <iframe
+            src={`${base}/Brandzo_Operational_Guide.html`}
+            title="الدليل التشغيلي"
+            loading="lazy"
+          ></iframe>
+        </div>
 
-      <!-- تذييل الـ drawer -->
-      <div class="p-4 border-t border-brand-gold/30 bg-brand-navy/50 text-center text-xs text-gray-400 flex-shrink-0">
-        Brandzo ERP 2026 - Operational Excellence
-      </div>
-    </dialog>
+        <!-- تذييل الـ drawer -->
+        <div class="p-4 border-t border-brand-gold/30 bg-brand-navy/50 text-center text-xs text-gray-400 flex-shrink-0">
+          Brandzo ERP 2026 - Operational Excellence
+        </div>
+      </dialog>
+    )}
 
     <script is:inline>
       (function () {
         'use strict';
 
         /* ─── 1. الدليل التشغيلي (Guide Drawer) ─────────────────────────────── */
-        const guideDrawer  = document.getElementById('guide-drawer');
-        const openGuideBtn = document.getElementById('open-guide');
-        const closeGuideBtn = document.getElementById('close-guide');
+        {showGuide && (
+          <>
+            const guideDrawer  = document.getElementById('guide-drawer');
+            const openGuideBtn = document.getElementById('open-guide');
+            const closeGuideBtn = document.getElementById('close-guide');
 
-        if (guideDrawer && openGuideBtn && closeGuideBtn) {
-          openGuideBtn.addEventListener('click', () => {
-            guideDrawer.showModal();
-          });
+            if (guideDrawer && openGuideBtn && closeGuideBtn) {
+              openGuideBtn.addEventListener('click', () => {
+                guideDrawer.showModal();
+              });
 
-          closeGuideBtn.addEventListener('click', () => {
-            guideDrawer.close();
-          });
+              closeGuideBtn.addEventListener('click', () => {
+                guideDrawer.close();
+              });
 
-          /*
-            إغلاق الـ drawer عند النقر على الـ backdrop.
-            e.target === guideDrawer تعني أن المستخدم نقر خارج محتوى الـ dialog.
-          */
-          guideDrawer.addEventListener('click', (e) => {
-            if (e.target === guideDrawer) guideDrawer.close();
-          });
-        }
+              /*
+                إغلاق الـ drawer عند النقر على الـ backdrop.
+                e.target === guideDrawer تعني أن المستخدم نقر خارج محتوى الـ dialog.
+              */
+              guideDrawer.addEventListener('click', (e) => {
+                if (e.target === guideDrawer) guideDrawer.close();
+              });
+            }
+          </>
+        )}
 
         /* ─── 2. السايدبار على الموبايل ──────────────────────────────────────── */
         const sidebar  = document.getElementById('brandzo-sidebar');
@@ -359,7 +367,7 @@ const navItems = [
 
         /* إغلاق عند ضغط Escape (إلا لو كان الـ guide drawer مفتوحاً) */
         document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && !guideDrawer?.open) closeSidebar();
+          if (e.key === 'Escape' && (!showGuide || !guideDrawer?.open)) closeSidebar();
         });
 
         /*

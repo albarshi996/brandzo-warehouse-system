@@ -280,6 +280,88 @@ const BrandzoDashboard = () => {
         />
       </div>
 
+      {/* What We Offer Section */}
+      <section className="mt-10 mb-8">
+        <div className="rounded-xl bg-white shadow-sm border border-gray-200 p-6 sm:p-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-brand-navy text-center mb-6">What We Offer</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="p-4 border border-gray-200 rounded-lg">
+              <h3 className="font-bold text-brand-red mb-2">Zero-Tolerance Compliance</h3>
+              <p className="text-sm text-gray-600">No stock movement without digital/physical documentation.</p>
+            </div>
+            <div className="p-4 border border-gray-200 rounded-lg">
+              <h3 className="font-bold text-brand-red mb-2">HACCP Certified Logic</h3>
+              <p className="text-sm text-gray-600">Strict temperature gatekeeping (4°C / -18°C) and 75% minimum remaining shelf-life requirement upon receipt.</p>
+            </div>
+            <div className="p-4 border border-gray-200 rounded-lg">
+              <h3 className="font-bold text-brand-red mb-2">FEFO-Driven Operations</h3>
+              <p className="text-sm text-gray-600">Automated picking strategy based on first-expired-first-out.</p>
+            </div>
+            <div className="p-4 border border-gray-200 rounded-lg">
+              <h3 className="font-bold text-brand-red mb-2">High-Fidelity Identification</h3>
+              <p className="text-sm text-gray-600">Instant generation of ready-to-print barcode cards for every SKU.</p>
+            </div>
+            <div className="p-4 border border-gray-200 rounded-lg">
+              <h3 className="font-bold text-brand-red mb-2">Standardization Metrics</h3>
+              <p className="text-sm text-gray-600">98.5% inventory accuracy and sub-4-hour cycle time.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* لوحة القوانين التشغيلية */}
+      <section className="mt-8 mb-8">
+        <div className="rounded-xl bg-white shadow-sm border border-gray-200 p-6 sm:p-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-brand-navy text-center mb-6">لوحة القوانين التشغيلية</h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-lg font-bold text-red-600 mb-4">Strict Administrative Policies (Non-negotiable / Safety)</h3>
+              <ul className="space-y-3 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-1">•</span>
+                  <span>HACCP CCP1: Receiving temperature ≤ 4°C for chilled, ≤ -18°C for frozen.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-1">•</span>
+                  <span>HACCP CCP2: 24/7 cold storage temperature monitoring.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-1">•</span>
+                  <span>FEFO enforcement is mandatory for all outbound operations.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-1">•</span>
+                  <span>Zero stock movement without complete documentation.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-1">•</span>
+                  <span>No equipment operation without a valid Work Authorization.</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-bold text-blue-600 mb-4">General Operational Guidelines (Best Practices)</h3>
+              <ul className="space-y-3 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-500 mt-1">•</span>
+                  <span>Weekly Gemba Walk assessments.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-500 mt-1">•</span>
+                  <span>Daily Huddle meetings (10–15 minutes).</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-500 mt-1">•</span>
+                  <span>Cycle count strategy based on ABC classification.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <main className="mt-10">
         <section className="rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-4 sm:p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
