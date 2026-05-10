@@ -1,6 +1,6 @@
 /**
- * Brandzo Smart Forms Utility
- * Handles localStorage persistence, barcode scanning, and print optimization.
+ * Brandzo Smart Forms Utility (SAFE & ULTIMATE VERSION)
+ * Handles localStorage persistence, barcode scanning, print optimization, dynamic rows, row deletion, and Form Reset.
  */
 
 (function () {
@@ -14,11 +14,11 @@
     injectLandscapePrint();
     setupPrintValidation();
     setupDynamicRows();
+    setupClearFormFeature(); // تفعيل ميزة إفراغ النموذج
   });
 
   // 2. Setup Event Listeners
   function setupEventListeners() {
-    // Listen for all input events (captures barcode scanners)
     document.addEventListener('input', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
         saveDraft();
@@ -27,7 +27,6 @@
       }
     });
 
-    // Special handling for barcode scanning in tables
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && e.target.closest('table')) {
         saveDraft();
@@ -44,14 +43,11 @@
       if (input.id || input.name) {
         formData[input.id || input.name] = input.value;
       } else {
-        // Fallback for inputs without ID/name
         formData[`input_index_${index}`] = input.value;
       }
     });
 
-    // Save table data with table identity
     formData.tables = getTableData();
-
     localStorage.setItem(`brandzo_draft_${FORM_ID}`, JSON.stringify(formData));
   }
 
@@ -114,12 +110,25 @@
 
   function restoreTableData(tableData) {
     const tables = document.querySelectorAll('table');
-
     tableData.forEach(tData => {
       const table = tables[tData.tableIndex];
       if (!table) return;
 
-      const trs = table.querySelectorAll('tbody tr');
+      const tbody = table.querySelector('tbody');
+      if (!tbody) return;
+
+      const currentRowsCount = tbody.querySelectorAll('tr').length;
+      const targetRowsCount = tData.rows.length;
+
+      if (targetRowsCount > currentRowsCount) {
+        const rowsToAdd = targetRowsCount - currentRowsCount;
+        for (let i = 0; i < rowsToAdd; i++) {
+          const added = addNewRow(table);
+          if (!added) break;
+        }
+      }
+
+      const trs = tbody.querySelectorAll('tr');
       tData.rows.forEach(rData => {
         const tr = trs[rData.rowIndex];
         if (tr) {
@@ -136,10 +145,9 @@
     });
   }
 
-  // 6. Print Persistence (Force value into attribute/text)
+  // 6. Print Persistence & Sync
   function syncToPrint(el) {
     el.setAttribute('value', el.value);
-
     const parent = el.parentElement;
     if (parent && (parent.tagName === 'TD' || parent.classList.contains('print-sync'))) {
       let printSpan = parent.querySelector('.print-only-text');
@@ -147,15 +155,13 @@
         printSpan = document.createElement('span');
         printSpan.className = 'print-only-text hidden print:block';
         parent.appendChild(printSpan);
-        parent.classList.add('has-print-text');
       }
       printSpan.innerText = el.value;
     }
   }
 
-  // 7. Auto-calculation for Qty × Price = Total
+  // 7. Auto-calculation
   function handleAutoCalculation(target) {
-    // Check if target is qty or price input in a table row
     if (target.classList.contains('item-qty') || target.classList.contains('item-price')) {
       const row = target.closest('tr');
       if (!row) return;
@@ -168,25 +174,141 @@
         const qty = parseFloat(qtyInput.value) || 0;
         const price = parseFloat(priceInput.value) || 0;
         const total = qty * price;
-
         totalInput.value = total.toFixed(2);
         syncToPrint(totalInput);
       }
     }
   }
 
-  // 8. Validation for mandatory fields before print/save
-  function validateForm() {
-    // إلغاء التحقق الإلزامي — الطباعة مفتوحة دائماً
+  // 8. Dynamic Rows Feature (Add & Delete)
+  function setupDynamicRows() {
+    document.querySelectorAll('table').forEach(function (table) {
+      const tbody = table.querySelector('tbody');
+      if (!tbody) return;
+
+      const actionsContainer = document.createElement('div');
+      actionsContainer.className = 'no-print table-actions-container';
+      actionsContainer.style.cssText = 'display: flex; gap: 10px; margin: 6px 0;';
+
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.textContent = '+ إضافة صف';
+      addBtn.style.cssText = 'padding:5px 14px; background:#e65c00; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:13px; font-family:inherit;';
+
+      addBtn.addEventListener('click', function () {
+        addNewRow(table);
+        saveDraft();
+      });
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.textContent = '- حذف صف';
+      deleteBtn.style.cssText = 'padding:5px 14px; background:#dc3545; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:13px; font-family:inherit;';
+
+      deleteBtn.addEventListener('click', function () {
+        deleteLastRow(table);
+        saveDraft();
+      });
+
+      actionsContainer.appendChild(addBtn);
+      actionsContainer.appendChild(deleteBtn);
+      table.parentNode.insertBefore(actionsContainer, table.nextSibling);
+    });
+  }
+
+  function addNewRow(table) {
+    const tbody = table.querySelector('tbody');
+    if (!tbody) return false;
+    
+    const lastRow = tbody.querySelector('tr:last-child');
+    if (!lastRow) return false;
+
+    const newRow = lastRow.cloneNode(true);
+    const rowIndex = tbody.querySelectorAll('tr').length + 1;
+
+    newRow.querySelectorAll('input, textarea, select').forEach(function (el) {
+      if (el.type === 'checkbox' || el.type === 'radio') {
+        el.checked = false;
+      } else if (el.tagName === 'SELECT') {
+        el.selectedIndex = 0;
+      } else {
+        el.value = '';
+      }
+      el.removeAttribute('value');
+      
+      if (el.hasAttribute('id')) {
+        el.removeAttribute('id');
+      }
+
+      const parent = el.parentElement;
+      if (parent) {
+         const oldSpan = parent.querySelector('.print-only-text');
+         if (oldSpan) oldSpan.remove();
+      }
+    });
+
+    newRow.querySelectorAll('*').forEach(function (el) {
+      const text = el.textContent.trim();
+      if (el.children.length === 0 && (text === '0.00' || text === '0' || text === '0.0')) {
+        el.textContent = ''; 
+      }
+    });
+
+    const firstTd = newRow.querySelector('td:first-child');
+    if (firstTd && !firstTd.querySelector('input') && /^\d+$/.test(firstTd.textContent.trim())) {
+      firstTd.textContent = rowIndex;
+    }
+
+    tbody.appendChild(newRow);
+
+    const firstInput = newRow.querySelector('input');
+    if (firstInput) {
+      firstInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
     return true;
   }
 
-  // 9. Setup print validation
-  function setupPrintValidation() {
-    // تم إلغاء الشرط الإلزامي — لا يتم منع الطباعة على أي أزرار
+  function deleteLastRow(table) {
+    const tbody = table.querySelector('tbody');
+    if (!tbody) return false;
+    
+    const rows = tbody.querySelectorAll('tr');
+    
+    if (rows.length <= 1) {
+      alert('عذراً، لا يمكن حذف الصف الأخير.');
+      return false;
+    }
+    
+    const lastRow = rows[rows.length - 1];
+    lastRow.remove();
+    return true;
   }
 
-  // 7. Auto-fill logic
+  // 9. Form Reset Feature
+  function setupClearFormFeature() {
+    const clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.textContent = '🗑️ إفراغ النموذج';
+    clearBtn.className = 'no-print';
+    clearBtn.style.cssText = 'position: fixed; bottom: 20px; left: 20px; padding: 10px 20px; background: #333; color: #fff; border: none; border-radius: 50px; cursor: pointer; font-size: 14px; font-family: inherit; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: background 0.3s;';
+    
+    clearBtn.onmouseover = () => clearBtn.style.background = '#dc3545';
+    clearBtn.onmouseout = () => clearBtn.style.background = '#333';
+
+    clearBtn.addEventListener('click', function () {
+      if (confirm('هل أنت متأكد أنك تريد مسح جميع البيانات والبدء بنموذج جديد؟')) {
+        localStorage.removeItem(`brandzo_draft_${FORM_ID}`);
+        window.location.reload();
+      }
+    });
+
+    document.body.appendChild(clearBtn);
+  }
+
+  // 10. Extra Utils
+  function setupPrintValidation() { /* إلغاء القيود */ }
+
   function setupAutoFill() {
     const dateInput = document.querySelector('input[type="date"]');
     if (dateInput && !dateInput.value) {
@@ -196,26 +318,11 @@
   }
 
   function injectLandscapePrint() {
-    var existingStyle = document.getElementById('brandzo-landscape-print');
-    if (existingStyle) return;
-
-    var style = document.createElement('style');
+    if (document.getElementById('brandzo-landscape-print')) return;
+    const style = document.createElement('style');
     style.id = 'brandzo-landscape-print';
-    style.textContent = '@page { size: A4 landscape; margin: 10mm; }';
+    style.textContent = '@page { size: A4 landscape; margin: 10mm; } @media print { .no-print { display: none !important; } }';
     document.head.appendChild(style);
   }
-  // 10. Setup dynamic row event listeners
-  function setupDynamicRows() {
-    // Find all tables with data-calc or item-qty/item-price inputs
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-      const rows = table.querySelectorAll('tbody tr');
-      rows.forEach(row => {
-        const inputs = row.querySelectorAll('input[class*="qty"], input[class*="price"], input[class*="total"]');
-        inputs.forEach(input => {
-          input.addEventListener('input', () => handleAutoCalculation(input));
-        });
-      });
-    });
-  }
+
 })();

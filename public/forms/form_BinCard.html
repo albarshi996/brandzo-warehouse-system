@@ -193,10 +193,12 @@
         <div class="dark-bar"></div>
     </div>
 </header>
-    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+    <div class="button-container" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 12px 0;">
         <button class="print-btn no-print" onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
         <button class="excel-btn no-print" onclick="exportToExcel()">📊 تصدير إلى إكسيل | Export to Excel</button>
     </div>
+
+    <div class="form-wrap">
         <div class="form-header">
             <div class="logo">⚡ BRANDZO FRANCHISE PARTNERS</div>
             <div class="form-title">بطاقة مراقبة المخزون — Bin / Pallet Card</div>
@@ -229,7 +231,6 @@
                     </tr>
                 </thead>
                 <tbody id="binCardBody">
-                    <!-- 15 صفوف فارغة تماماً بدون أي نصوص مخفية أو قيم افتراضية -->
                     <script>
                         const rowCount = 15;
                         const tbody = document.getElementById('binCardBody');
@@ -268,12 +269,11 @@
                 <div class="sign-box"><div class="sign-line"></div><div class="sign-label">مدير المستودع (Warehouse Manager)</div></div>
             </div>
 
-        </div>
-    </div>
-    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        </div> </div> <div class="button-container" style="display: flex; gap: 10px; justify-content: center; margin: 12px 0;">
         <button class="print-btn no-print" onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
         <button class="excel-btn no-print" onclick="exportToExcel()">📊 تصدير إلى إكسيل | Export to Excel</button>
     </div>
+    
     <footer class="brand-footer"><p>إعداد محمد البرشي</p></footer>
 </div>
 
@@ -334,13 +334,6 @@
     });
 </script>
 
-    <!-- ============================================================
-         BRANDZO SMART-PRINT LAYER (auto-injected, do not edit by hand)
-         - Editable inputs auto-grow vertically when text wraps.
-         - On print: every input/textarea is replaced visually by a
-           dark-gray text mirror so values render readably on paper
-           and never get clipped.
-         ============================================================ -->
     <style id="brandzo-smart-print-style">
         /* On-screen: roomier touch targets, soft focus ring, brand-aligned. */
         .form-input,
@@ -564,11 +557,6 @@
     </script>
 
 
-    <!-- ============================================================
-         BRANDZO BARCODE SCANNER — local html5-qrcode bundle with CDN
-         fallback, explicit camera permission probe, and Arabic
-         per-error messages. Hidden on print.
-         ============================================================ -->
     <div class="scan-modal no-print" id="brandzoScanModal" aria-hidden="true">
         <div class="scan-modal__panel" role="dialog" aria-label="ماسح الباركود">
             <div class="scan-modal__title">📷 امسح الباركود / QR</div>
@@ -873,7 +861,10 @@ function exportToExcel() {
         ws['!cols'] = Array(15).fill({ wch: 22 });
         XLSX.utils.book_append_sheet(wb, ws, 'Export');
         var safeTitle = title.replace(/[\/:*?"<>|]/g, '').replace(/\s+/g, '_').slice(0, 40);
-        const fileName = 'Brandzo_' + safeTitle + '_' + date + '.xlsx';\        const userFileName = prompt("أدخل اسم الملف قبل الحفظ:", fileName);\        if (userFileName === null) return;\        if (userFileName.trim() !== '') fileName = userFileName.trim().endsWith('.xlsx') ? userFileName.trim() : userFileName.trim() + '.xlsx';
+        let fileName = 'Brandzo_' + safeTitle + '_' + date + '.xlsx';
+        const userFileName = prompt("أدخل اسم الملف قبل الحفظ:", fileName);
+        if (userFileName === null) return;
+        if (userFileName.trim() !== '') fileName = userFileName.trim().endsWith('.xlsx') ? userFileName.trim() : userFileName.trim() + '.xlsx';
         XLSX.writeFile(wb, fileName);
     };
     script.onerror = function () { alert('Failed to load Excel library. Check your internet connection.'); };
