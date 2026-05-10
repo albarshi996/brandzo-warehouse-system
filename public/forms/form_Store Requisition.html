@@ -12,6 +12,31 @@
             --gold: #DAAA3C; --gold-light: #FFD700; --orange: #E84820;
             --dark-burgundy: #1a0008; --shadow-glow: rgba(200, 30, 50, 0.45);
             --glass-bg: rgba(255, 255, 255, 0.07); --glass-border: rgba(255, 255, 255, 0.22);
+            --brandzo-light-red: #f15a5b;
+            --brandzo-dark-red: #7e2b2a;
+            --text-gray: #4a4a4a;
+        }
+        .brandzo-header {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; max-width: 1200px; margin: 0 auto 24px; background: #ffffff;
+            padding: 20px 0; border-radius: 12px;
+        }
+        .decor-side { display: flex; align-items: center; flex-grow: 1; }
+        .dark-bar { height: 28px; background-color: var(--brandzo-dark-red); flex-grow: 1; }
+        .light-blocks { display: flex; gap: 6px; margin: 0 15px; }
+        .light-blocks span { display: inline-block; width: 14px; height: 38px; background-color: var(--brandzo-light-red); }
+        .logo-wrapper { display: flex; align-items: center; gap: 12px; margin: 0 25px; direction: ltr; }
+        .logo-circle {
+            width: 85px; height: 85px; background-color: var(--brandzo-light-red);
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            color: #ffffff; font-size: 28px; font-weight: bold; font-family: Arial, sans-serif;
+        }
+        .logo-text { display: flex; flex-direction: column; justify-content: center; }
+        .logo-text h1 {
+            color: var(--brandzo-light-red); font-size: 38px; font-weight: 800;
+            margin: 0; line-height: 1; font-family: Arial, sans-serif; letter-spacing: -0.5px;
+        }
+        .logo-text p { color: var(--text-gray); font-size: 15px; margin: 4px 0 0 0; font-family: Arial, sans-serif; }
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -139,20 +164,28 @@
 
 <div class="no-print form-top-nav" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; padding: 0 16px; margin-bottom: 16px;">
     <a href="../dashboard/forms/" style="padding: 10px 20px; background: #c0392b; color: white; text-decoration: none; border-radius: 6px; font-weight: 700;">🏠 لوحة التحكم</a>
-    <a href="../Brandzo_Operational_Guide.html" style="padding: 10px 20px; background: #1B3A6B; color: white; text-decoration: none; border-radius: 6px; font-weight: 700;">📘 الدليل التشغيلي</a>
 </div>
 
 <div class="page-wrapper">
-    <header class="luxury-header">
+<header class="brandzo-header">
+    <div class="decor-side">
+        <div class="dark-bar"></div>
+        <div class="light-blocks"><span></span><span></span><span></span></div>
+    </div>
+    <div class="logo-wrapper">
+        <div class="logo-circle">BFP</div>
+        <div class="logo-text">
+            <h1>Brandzo</h1>
+            <p>Franchise Partners</p>
+        </div>
+    </div>
+    <div class="decor-side">
+        <div class="light-blocks"><span></span><span></span><span></span></div>
+        <div class="dark-bar"></div>
+    </div>
+</header>
         <div class="glass-circle">BFP</div>
         <span class="brand-name">Brandzo</span>
-    </header>
-    <div class="gold-separator"></div>
-    <div class="arabic-title-section">
-        <span class="emoji-badge">📥</span><span class="emoji-badge">🏬</span><span class="emoji-badge">🏢</span>
-        <span class="main-arabic-title">أمر الصرف الداخلي — Store Requisition</span>
-        <span class="emoji-badge">📦</span><span class="emoji-badge">📋</span>
-    </div>
     <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
         <button class="print-btn no-print" onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
         <button class="excel-btn no-print" onclick="exportToExcel()">📊 تصدير إلى إكسيل | Export to Excel</button>
@@ -778,7 +811,8 @@ function exportToExcel() {
         ws['!cols'] = Array(15).fill({ wch: 22 });
         XLSX.utils.book_append_sheet(wb, ws, 'Export');
         var safeTitle = title.replace(/[\/:*?"<>|]/g, '').replace(/\s+/g, '_').slice(0, 40);
-        XLSX.writeFile(wb, 'Brandzo_' + safeTitle + '_' + date + '.xlsx');
+        const fileName = 'Brandzo_' + safeTitle + '_' + date + '.xlsx';\        const userFileName = prompt("أدخل اسم الملف قبل الحفظ:", fileName);\        if (userFileName === null) return;\        if (userFileName.trim() !== '') fileName = userFileName.trim().endsWith('.xlsx') ? userFileName.trim() : userFileName.trim() + '.xlsx';
+        XLSX.writeFile(wb, fileName);
     };
     script.onerror = function () { alert('Failed to load Excel library. Check your internet connection.'); };
     document.head.appendChild(script);

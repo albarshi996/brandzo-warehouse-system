@@ -200,6 +200,8 @@ const BrandzoDashboard = () => {
 
   return (
     <div className="text-right" dir="rtl">
+      {/* HIDDEN: System Overview */}
+      {/*
       <header className="mb-6 sm:mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-brand-navy text-center md:text-right">نظرة عامة على النظام</h1>
@@ -215,6 +217,7 @@ const BrandzoDashboard = () => {
           النماذج التشغيلية
         </a>
       </header>
+      */}
 
       {error && (
         <div
@@ -225,6 +228,8 @@ const BrandzoDashboard = () => {
         </div>
       )}
 
+      {/* HIDDEN: Inventory Overview */}
+      {/*
       <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
         <KpiCard
           icon="package"
@@ -279,6 +284,7 @@ const BrandzoDashboard = () => {
           neonColor="blue"
         />
       </div>
+      */}
 
       {/* What We Offer Section */}
       <section className="mt-10 mb-8">

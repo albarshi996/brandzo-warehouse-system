@@ -10,11 +10,8 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 
 const navItems = [
   { href: `${base}/dashboard`, label: 'الرئيسية', icon: 'grid' },
-  { href: `${base}/dashboard/warehouses`, label: 'إدارة المستودعات', icon: 'warehouse' },
-  { href: `${base}/dashboard/products`, label: 'إدارة الأصناف', icon: 'package' },
-  { href: `${base}/dashboard/grn`, label: 'المشتريات والاستلام', icon: 'fileUp' },
   { href: `${base}/dashboard/workflows`, label: 'الهيكل والمسارات', icon: 'workflows' },
-  { href: `${base}/dashboard/forms`, label: 'النماذج التشغيلية', icon: 'clipboardList' },
+  { href: `${base}/dashboard/forms`, label: 'اختار وظيفتك', icon: 'clipboardList' },
 ];
 ---
 
@@ -22,7 +19,7 @@ const navItems = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title ? `${title} - Brandzo ERP 2026` : 'Brandzo ERP 2026'}</title>
+    <title>{title ? `${title} - Brandzo Hub 2026` : 'Brandzo Hub 2026'}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -126,7 +123,7 @@ const navItems = [
         >
           B
         </div>
-        <span class="font-bold tracking-tight">Brandzo ERP</span>
+        <span class="font-bold tracking-tight">Brandzo Hub</span>
       </div>
       <button
         id="brandzo-menu-toggle"
@@ -163,7 +160,7 @@ const navItems = [
           >
             B
           </div>
-          <h1 class="text-xl font-bold tracking-tight">Brandzo ERP</h1>
+          <h1 class="text-xl font-bold tracking-tight">Brandzo Hub</h1>
         </div>
         <!-- زر الإغلاق: يظهر فقط في الموبايل -->
         <button
@@ -232,7 +229,7 @@ const navItems = [
         <p class="text-[11px] leading-snug text-gray-300 font-medium" dir="rtl">
           برمجة وتطوير: محمد إبراهيم البرشي
         </p>
-        <p class="text-[10px] text-gray-500 mt-1">Brandzo ERP 2026 &copy;</p>
+        <p class="text-[10px] text-gray-500 mt-1">Brandzo Hub 2026 &copy;</p>
       </div>
     </aside>
 
@@ -295,7 +292,7 @@ const navItems = [
 
         <!-- تذييل الـ drawer -->
         <div class="p-4 border-t border-brand-gold/30 bg-brand-navy/50 text-center text-xs text-gray-400 flex-shrink-0">
-          Brandzo ERP 2026 - Operational Excellence
+          Brandzo Hub 2026 - Operational Excellence
         </div>
       </dialog>
     )}

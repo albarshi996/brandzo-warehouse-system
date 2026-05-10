@@ -13,6 +13,7 @@
     setupAutoFill();
     injectLandscapePrint();
     setupPrintValidation();
+    setupDynamicRows();
   });
 
   // 2. Setup Event Listeners
@@ -203,5 +204,18 @@
     style.textContent = '@page { size: A4 landscape; margin: 10mm; }';
     document.head.appendChild(style);
   }
-
+  // 10. Setup dynamic row event listeners
+  function setupDynamicRows() {
+    // Find all tables with data-calc or item-qty/item-price inputs
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      const rows = table.querySelectorAll('tbody tr');
+      rows.forEach(row => {
+        const inputs = row.querySelectorAll('input[class*="qty"], input[class*="price"], input[class*="total"]');
+        inputs.forEach(input => {
+          input.addEventListener('input', () => handleAutoCalculation(input));
+        });
+      });
+    });
+  }
 })();

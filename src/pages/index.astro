@@ -11,7 +11,7 @@ const base = import.meta.env.BASE_URL.endsWith('/')
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Brandzo ERP 2026 - نظام إدارة الموارد المتكامل</title>
+    <title>Brandzo Hub 2026 - نظام إدارة الموارد المتكامل</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -36,7 +36,7 @@ const base = import.meta.env.BASE_URL.endsWith('/')
           >
             B
           </div>
-          <span class="text-xl sm:text-2xl font-bold text-white tracking-tight">Brandzo ERP</span>
+          <span class="text-xl sm:text-2xl font-bold text-white tracking-tight">Brandzo Hub</span>
         </div>
       </div>
     </header>
@@ -53,17 +53,18 @@ const base = import.meta.env.BASE_URL.endsWith('/')
         <div class="container mx-auto px-4 sm:px-6 relative z-10">
           <div class="max-w-3xl">
             <h1 class="text-4xl sm:text-5xl md:text-7xl font-black text-white leading-tight mb-4">
-              منصة تقييس عمليات المستودعات
+              نضبط قبل ما ندخل
             </h1>
-            <p class="text-lg sm:text-xl font-semibold text-brand-red mb-2 tracking-wide">
-              Warehouse Process Standardization Platform
-            </p>
-            <p class="text-base sm:text-lg text-gray-300 mb-8 sm:mb-10 leading-loose max-w-2xl">
-              مؤشرات الأداء الرئيسية وحالة المخزون — تحديث لحظي عبر Firestore
-              <span class="block text-sm text-gray-400 mt-1">
-                Key Performance Indicators & Inventory Status — Real-time Firestore sync
-              </span>
-            </p>
+            <div class="text-base sm:text-lg text-gray-300 mb-8 sm:mb-10 leading-loose max-w-2xl">
+              كل العمليات (إضافة مخزون، صرف، تحويل، ارتجاع، جرد) بتمر على نماذج ذكية إجبارية.<br>
+              النظام يتحقق من المنطق التشغيلي (الصلاحيات، الحدود، الكميات، تواريخ الصلاحية، التوصيات التلقائية).<br>
+              لو فيه خطأ → تنبيه فوري وإيقاف التحويل لـ ERP.<br><br>
+              الميزة الحاسمة: تكاملي وليس بديلاً (بنكمل الـ ERP)<br>
+              · تصحيح أخطاء بيانات قبل تصل للـ ERP.<br>
+              · توفير 60% من وقت المراجعة (أرقام تقديرية).<br>
+              · تقارير ذكية (Trends, Accuracy Rate, Cycle Counts) تطلع من Hub مباشرة.<br>
+              · تدريب وامتثال موظفين جدد خلال يوم واحد بواجهة سهلة.
+            </div>
             <div class="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
               <a
                 href={`${base}/dashboard/`}
@@ -126,11 +127,11 @@ const base = import.meta.env.BASE_URL.endsWith('/')
                     d="M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"></path></svg
                 >
               </div>
-              <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">إدارة المستودعات
-                <span class="block text-sm font-normal text-gray-400 mt-1">Warehouse Management</span>
+              <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">بوابة التحقق الذكي
+                <span class="block text-sm font-normal text-gray-400 mt-1">Smart Validation Gate</span>
               </h3>
               <p class="text-gray-600 leading-relaxed">
-                تحكم كامل في جميع فروعك ومستودعاتك من شاشة واحدة مع مزامنة لحظية.
+                كل عملية تمر عبر نموذج إجباري يتحقق من الكميات والصلاحيات قبل الإرسال.
               </p>
             </div>
             <div
@@ -155,11 +156,11 @@ const base = import.meta.env.BASE_URL.endsWith('/')
                   ></path></svg
                 >
               </div>
-              <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">بطاقة الأصناف
-                <span class="block text-sm font-normal text-gray-400 mt-1">Item Master</span>
+              <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">تصحيح قبل الـ ERP
+                <span class="block text-sm font-normal text-gray-400 mt-1">Pre-ERP Error Correction</span>
               </h3>
               <p class="text-gray-600 leading-relaxed">
-                تنظيم احترافي للأصناف، الفئات، ووحدات القياس مع تنبيهات نقص المخزون.
+                نضمن دقة البيانات قبل وصولها لأي نظام ERP — نقلل من أخطاء الإدخال اليدوي.
               </p>
             </div>
             <div
@@ -186,11 +187,11 @@ const base = import.meta.env.BASE_URL.endsWith('/')
                     y2="12"></line><polyline points="9 15 12 12 15 15"></polyline></svg
                 >
               </div>
-              <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">الاستلام الذكي
-                <span class="block text-sm font-normal text-gray-400 mt-1">Smart Receiving (GRN)</span>
+              <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">تقارير Hub المباشرة
+                <span class="block text-sm font-normal text-gray-400 mt-1">Direct Hub Reports</span>
               </h3>
               <p class="text-gray-600 leading-relaxed">
-                نظام استلام متطور يدعم الباركود والربط المباشر مع أوامر الشراء.
+                Trends، Accuracy Rate، وCycle Counts — تقارير تشغيلية لحظية دون الحاجة للـ ERP.
               </p>
             </div>
           </div>
@@ -201,7 +202,7 @@ const base = import.meta.env.BASE_URL.endsWith('/')
     <footer class="py-8 sm:py-12 bg-gray-50 border-t border-gray-200">
       <div class="container mx-auto px-4 sm:px-6 text-center">
         <p class="text-sm sm:text-base text-gray-500 font-bold">
-          Brandzo ERP اعداد محمد البرشي2026 &copy; جميع الحقوق محفوظة
+          Brandzo Hub © 2026 — اعداد محمد البرشي — جميع الحقوق محفوظة
         </p>
       </div>
     </footer>
