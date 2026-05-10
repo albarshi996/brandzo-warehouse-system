@@ -15,7 +15,7 @@
     setupPrintValidation();
     setupDynamicRows();
     setupClearFormFeature(); // تفعيل ميزة إفراغ النموذج
-    // NOTE: زر تصدير Excel موجود داخل كل نموذج HTML مباشرةً — لا حاجة لحقنه من هنا
+    setupExcelExport();     // تفعيل تصدير Excel لجميع النماذج تلقائياً
   });
 
   // 2. Setup Event Listeners
@@ -307,7 +307,136 @@
     document.body.appendChild(clearBtn);
   }
 
-  // 10. Extra Utils
+  // 10. Excel Export — Universal for all forms
+  function setupExcelExport() {
+    // Inject CSS for the excel button (only once)
+    if (!document.getElementById('brandzo-excel-style')) {
+      const style = document.createElement('style');
+      style.id = 'brandzo-excel-style';
+      style.textContent = `
+        .excel-btn {
+          display: inline-block;
+          margin: 8px 6px;
+          padding: 10px 28px;
+          background: #16a34a;
+          color: #fff;
+          border: none;
+          font-family: 'Cairo', sans-serif;
+          font-size: 1rem;
+          font-weight: 700;
+          cursor: pointer;
+          border-radius: 6px;
+          box-shadow: 0 3px 12px rgba(22,163,74,0.4);
+          transition: background 0.25s;
+        }
+        .excel-btn:hover { background: #15803d; }
+        @media print { .excel-btn { display: none !important; } }
+      `;
+      document.head.appendChild(style);
+    }
+
+    // Inject button only if none exists yet
+    if (!document.querySelector('.excel-btn')) {
+      // Find existing print button container or create one
+      const printBtn = document.querySelector('.print-btn');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'excel-btn no-print';
+      btn.textContent = '📊 تصدير إلى إكسيل | Export to Excel';
+      btn.onclick = exportToExcel;
+
+      if (printBtn && printBtn.parentNode) {
+        printBtn.parentNode.insertBefore(btn, printBtn.nextSibling);
+      } else {
+        // Fallback: insert before first form section
+        const firstSection = document.querySelector('.form-wrap, .form-body, main, form');
+        if (firstSection) {
+          firstSection.parentNode.insertBefore(btn, firstSection);
+        } else {
+          document.body.insertBefore(btn, document.body.firstChild);
+        }
+      }
+    }
+  }
+
+  window.exportToExcel = function exportToExcel() {
+    // Load SheetJS only once
+    if (window.XLSX) {
+      _doExport();
+      return;
+    }
+    var script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    script.onload = _doExport;
+    script.onerror = function () {
+      alert('تعذّر تحميل مكتبة Excel. تحقق من اتصالك بالإنترنت.\nFailed to load Excel library. Check your internet connection.');
+    };
+    document.head.appendChild(script);
+  };
+
+  function _doExport() {
+    var dateEl = document.querySelector('input[type="date"]');
+    var date = dateEl
+      ? dateEl.value || new Date().toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0];
+
+    var titleEl = document.querySelector('.form-title, .main-arabic-title, h1');
+    var title = titleEl ? titleEl.textContent.trim() : document.title;
+
+    var rows = [['النموذج', title], ['التاريخ', date], []];
+
+    // Field groups (label + input pairs)
+    document.querySelectorAll('.field-group').forEach(function (group) {
+      var label = group.querySelector('label');
+      var input = group.querySelector('input, textarea, select');
+      if (label && input) {
+        rows.push([label.textContent.trim(), input.value || '—']);
+      }
+    });
+
+    // Tables
+    document.querySelectorAll('table').forEach(function (table) {
+      rows.push([]);
+      var headers = [];
+      table.querySelectorAll('thead th').forEach(function (th) {
+        headers.push(th.textContent.trim());
+      });
+      if (headers.length) rows.push(headers);
+      table.querySelectorAll('tbody tr').forEach(function (tr) {
+        var rowData = [];
+        tr.querySelectorAll('td').forEach(function (td) {
+          var inp = td.querySelector('input, select, textarea');
+          rowData.push(inp ? (inp.value || '') : td.textContent.trim());
+        });
+        rows.push(rowData);
+      });
+    });
+
+    // Summary / footer field groups
+    document.querySelectorAll('.summary-grid .field-group, .count-summary .field-group, .form-footer .field-group').forEach(function (group) {
+      var label = group.querySelector('label');
+      var input = group.querySelector('input, textarea, select');
+      if (label && input) {
+        rows.push([label.textContent.trim(), input.value || '—']);
+      }
+    });
+
+    var wb = XLSX.utils.book_new();
+    var ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = Array(15).fill({ wch: 22 });
+    XLSX.utils.book_append_sheet(wb, ws, 'Export');
+
+    var safeTitle = title.replace(/[\/:*?"<>|]/g, '').replace(/\s+/g, '_').slice(0, 40);
+    var defaultName = 'Brandzo_' + safeTitle + '_' + date + '.xlsx';
+    var userFileName = prompt('أدخل اسم الملف قبل الحفظ:', defaultName);
+    if (userFileName === null) return;
+    var finalName = userFileName.trim() !== ''
+      ? (userFileName.trim().endsWith('.xlsx') ? userFileName.trim() : userFileName.trim() + '.xlsx')
+      : defaultName;
+    XLSX.writeFile(wb, finalName);
+  }
+
+  // 11. Extra Utils
   function setupPrintValidation() { /* إلغاء القيود */ }
 
   function setupAutoFill() {
