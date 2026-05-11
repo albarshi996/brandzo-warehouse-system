@@ -27,6 +27,7 @@ export default function ItemForm({ mode, item, onSaved, onCancel }) {
   const [draft, setDraft] = useState(emptyDraft);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
     if (isEdit && item) {
@@ -43,9 +44,26 @@ export default function ItemForm({ mode, item, onSaved, onCancel }) {
       setDraft(emptyDraft());
     }
     setError('');
+    setHasUnsavedChanges(false);
   }, [isEdit, item]);
 
-  const update = (key) => (e) => setDraft((d) => ({ ...d, [key]: e.target.value }));
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = 'لديك تغييرات غير محفوظة. هل أنت متأكد من أنك تريد المغادرة؟';
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  const update = (key) => (e) => {
+    setDraft((d) => ({ ...d, [key]: e.target.value }));
+    setHasUnsavedChanges(true);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,6 +84,7 @@ export default function ItemForm({ mode, item, onSaved, onCancel }) {
         const sku = await createItem(draft);
         onSaved?.(sku);
       }
+      setHasUnsavedChanges(false);
     } catch (err) {
       setError(err?.message ?? 'تعذر حفظ الصنف');
     } finally {

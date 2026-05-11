@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import Icon from '../components/ui/Icon.astro';
 
-const { title } = Astro.props;
+const { title, showGuide = false } = Astro.props;
 
 const base = import.meta.env.BASE_URL.endsWith('/')
   ? import.meta.env.BASE_URL.slice(0, -1)
@@ -10,19 +10,19 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 
 const navItems = [
   { href: `${base}/dashboard`, label: 'الرئيسية', icon: 'grid' },
-  { href: `${base}/dashboard/warehouses`, label: 'إدارة المستودعات', icon: 'warehouse' },
-  { href: `${base}/dashboard/products`, label: 'إدارة الأصناف', icon: 'package' },
-  { href: `${base}/dashboard/grn`, label: 'المشتريات والاستلام', icon: 'fileUp' },
   { href: `${base}/dashboard/workflows`, label: 'الهيكل والمسارات', icon: 'workflows' },
-  { href: `${base}/dashboard/forms`, label: 'النماذج التشغيلية', icon: 'clipboardList' },
+  { href: `${base}/dashboard/forms`, label: 'اختار وظيفتك', icon: 'clipboardList' },
+  { href: `${base}/dashboard/tasks`, label: 'المهام', icon: 'clipboardList' },
 ];
+
+const currentPath = Astro.url.pathname;
 ---
 
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title ? `${title} - Brandzo ERP 2026` : 'Brandzo ERP 2026'}</title>
+    <title>{title ? `${title} - Brandzo Hub 2026` : 'Brandzo Hub 2026'}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -117,7 +117,8 @@ const navItems = [
     -->
     <header
       id="brandzo-mobile-header"
-      class="md:hidden fixed top-0 inset-x-0 z-50 flex items-center justify-between bg-brand-navy text-white px-4 py-3 shadow-lg"
+      class="fixed top-0 inset-x-0 z-50 items-center justify-between bg-brand-navy text-white px-4 py-3 shadow-lg"
+      style="display: flex;"
     >
       <div class="flex items-center gap-3">
         <div
@@ -125,7 +126,7 @@ const navItems = [
         >
           B
         </div>
-        <span class="font-bold tracking-tight">Brandzo ERP</span>
+        <span class="font-bold tracking-tight">Brandzo Hub</span>
       </div>
       <button
         id="brandzo-menu-toggle"
@@ -150,7 +151,9 @@ const navItems = [
     -->
     <aside
       id="brandzo-sidebar"
-      class="fixed top-0 right-0 w-64 max-w-[85vw] h-[100dvh] bg-brand-navy text-white shadow-xl z-[70] flex flex-col transform translate-x-full md:translate-x-0 transition-transform duration-200 ease-out"
+      class="fixed top-0 right-0 w-64 max-w-[85vw] h-[100dvh] bg-brand-navy text-white shadow-xl z-[70] flex flex-col transform transition-transform duration-200 ease-out"
+      style="transform: translateX(100%);"
+      aria-hidden="true"
     >
       <!-- رأس السايدبار: شعار + زر الإغلاق في الموبايل -->
       <div class="p-6 border-b border-gray-700 flex items-center justify-between gap-3 sticky top-0 bg-brand-navy z-[80]">
@@ -160,7 +163,7 @@ const navItems = [
           >
             B
           </div>
-          <h1 class="text-xl font-bold tracking-tight">Brandzo ERP</h1>
+          <h1 class="text-xl font-bold tracking-tight">Brandzo Hub</h1>
         </div>
         <!-- زر الإغلاق: يظهر فقط في الموبايل -->
         <button
@@ -199,7 +202,12 @@ const navItems = [
               <li>
                 <a
                   href={item.href}
-                  class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors"
+                  class={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    currentPath === item.href || currentPath.startsWith(item.href + '/')
+                      ? 'bg-brand-red text-white font-bold shadow-md'
+                      : 'hover:bg-gray-800 text-gray-300'
+                  }`}
+                  style={currentPath === item.href ? 'border-right: 3px solid #e8b830;' : ''}
                 >
                   <Icon name={item.icon} class="text-brand-red" />
                   <span class="font-medium">{item.label}</span>
@@ -209,16 +217,18 @@ const navItems = [
           }
 
           <!-- زر فتح الدليل التشغيلي -->
-          <li>
-            <button
-              id="open-guide"
-              class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors text-right"
-              type="button"
-            >
-              <Icon name="bookOpen" class="text-brand-gold" />
-              <span class="font-medium">الدليل التشغيلي</span>
-            </button>
-          </li>
+          {showGuide && (
+            <li>
+              <button
+                id="open-guide"
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors text-right"
+                type="button"
+              >
+                <Icon name="bookOpen" class="text-brand-gold" />
+                <span class="font-medium">الدليل التشغيلي</span>
+              </button>
+            </li>
+          )}
         </ul>
       </nav>
 
@@ -227,7 +237,7 @@ const navItems = [
         <p class="text-[11px] leading-snug text-gray-300 font-medium" dir="rtl">
           برمجة وتطوير: محمد إبراهيم البرشي
         </p>
-        <p class="text-[10px] text-gray-500 mt-1">Brandzo ERP 2026 &copy;</p>
+        <p class="text-[10px] text-gray-500 mt-1">Brandzo Hub 2026 &copy;</p>
       </div>
     </aside>
 
@@ -238,7 +248,8 @@ const navItems = [
     -->
     <div
       id="brandzo-backdrop"
-      class="md:hidden fixed inset-0 bg-black/50 z-[60] hidden"
+      class="fixed inset-0 bg-black/50 z-[60]"
+      style="display: none;"
       aria-hidden="true"
     ></div>
 
@@ -263,125 +274,157 @@ const navItems = [
       ═══════════════════════════════════════════════════════════
       لا نضع height هنا مباشرةً لأن CSS يتكفل بـ h: 100dvh
     -->
-    <dialog id="guide-drawer">
-      <!-- رأس الـ drawer -->
-      <div class="flex items-center justify-between p-4 border-b border-brand-gold/30 bg-brand-navy/50 flex-shrink-0">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 bg-brand-gold rounded flex items-center justify-center text-brand-navy shadow-lg neon-glow-gold">
-            <Icon name="bookOpen" size={18} />
+    {showGuide && (
+      <dialog id="guide-drawer">
+        <!-- رأس الـ drawer -->
+        <div class="flex items-center justify-between p-4 border-b border-brand-gold/30 bg-brand-navy/50 flex-shrink-0">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-brand-gold rounded flex items-center justify-center text-brand-navy shadow-lg neon-glow-gold">
+              <Icon name="bookOpen" size={18} />
+            </div>
+            <h2 class="text-xl font-bold text-brand-gold">الدليل التشغيلي</h2>
           </div>
-          <h2 class="text-xl font-bold text-brand-gold">الدليل التشغيلي</h2>
+          <button id="close-guide" type="button" class="p-2 hover:bg-white/10 rounded-full transition-colors" aria-label="إغلاق الدليل">
+            <Icon name="close" size={20} />
+          </button>
         </div>
-        <button id="close-guide" type="button" class="p-2 hover:bg-white/10 rounded-full transition-colors" aria-label="إغلاق الدليل">
-          <Icon name="close" size={20} />
-        </button>
-      </div>
 
-      <!-- جسم الـ drawer: الـ iframe يملأ المساحة المتاحة -->
-      <div class="guide-body">
-        <iframe
-          src={`${base}/Brandzo_Operational_Guide.html`}
-          title="الدليل التشغيلي"
-          loading="lazy"
-        ></iframe>
-      </div>
+        <!-- جسم الـ drawer: الـ iframe يملأ المساحة المتاحة -->
+        <div class="guide-body">
+          <iframe
+            src={`${base}/Brandzo_Operational_Guide.html`}
+            title="الدليل التشغيلي"
+            loading="lazy"
+          ></iframe>
+        </div>
 
-      <!-- تذييل الـ drawer -->
-      <div class="p-4 border-t border-brand-gold/30 bg-brand-navy/50 text-center text-xs text-gray-400 flex-shrink-0">
-        Brandzo ERP 2026 - Operational Excellence
-      </div>
-    </dialog>
+        <!-- تذييل الـ drawer -->
+        <div class="p-4 border-t border-brand-gold/30 bg-brand-navy/50 text-center text-xs text-gray-400 flex-shrink-0">
+          Brandzo Hub 2026 - Operational Excellence
+        </div>
+      </dialog>
+    )}
 
     <script is:inline>
       (function () {
         'use strict';
 
-        /* ─── 1. الدليل التشغيلي (Guide Drawer) ─────────────────────────────── */
-        const guideDrawer  = document.getElementById('guide-drawer');
-        const openGuideBtn = document.getElementById('open-guide');
-        const closeGuideBtn = document.getElementById('close-guide');
+        /* ══════════════════════════════════════════════════════════
+           ١. الدليل التشغيلي (Guide Drawer) — إذا كان موجوداً
+           ══════════════════════════════════════════════════════════ */
+        var guideDrawer   = document.getElementById('guide-drawer');
+        var openGuideBtn  = document.getElementById('open-guide');
+        var closeGuideBtn = document.getElementById('close-guide');
 
         if (guideDrawer && openGuideBtn && closeGuideBtn) {
-          openGuideBtn.addEventListener('click', () => {
+          openGuideBtn.addEventListener('click', function () {
             guideDrawer.showModal();
           });
-
-          closeGuideBtn.addEventListener('click', () => {
+          closeGuideBtn.addEventListener('click', function () {
             guideDrawer.close();
           });
-
-          /*
-            إغلاق الـ drawer عند النقر على الـ backdrop.
-            e.target === guideDrawer تعني أن المستخدم نقر خارج محتوى الـ dialog.
-          */
-          guideDrawer.addEventListener('click', (e) => {
+          guideDrawer.addEventListener('click', function (e) {
             if (e.target === guideDrawer) guideDrawer.close();
           });
         }
 
-        /* ─── 2. السايدبار على الموبايل ──────────────────────────────────────── */
-        const sidebar  = document.getElementById('brandzo-sidebar');
-        const backdrop = document.getElementById('brandzo-backdrop');
-        const toggle   = document.getElementById('brandzo-menu-toggle');
-        const closeBtn = document.getElementById('brandzo-menu-close');
+        /* ══════════════════════════════════════════════════════════
+           ٢. السايدبار الذكي — يعمل على الموبايل بكلا الاتجاهين
+           ══════════════════════════════════════════════════════════ */
+        var sidebar  = document.getElementById('brandzo-sidebar');
+        var backdrop = document.getElementById('brandzo-backdrop');
+        var toggle   = document.getElementById('brandzo-menu-toggle');
+        var closeBtn = document.getElementById('brandzo-menu-close');
+        var header   = document.getElementById('brandzo-mobile-header');
 
-        if (!sidebar || !backdrop || !toggle) return;
+        if (!sidebar) return;
 
-        /** فتح السايدبار */
+        /* ── نقطة الكسر: 768px = md في Tailwind ── */
+        var BREAKPOINT = 768;
+
+        function isDesktop() {
+          return window.innerWidth >= BREAKPOINT;
+        }
+
+        /* ── إظهار السايدبار ── */
         function openSidebar() {
-          sidebar.classList.remove('translate-x-full');
-          backdrop.classList.remove('hidden');
-          toggle.setAttribute('aria-expanded', 'true');
-          /*
-            نمنع تمرير الصفحة خلف السايدبار عبر style مباشر بدلاً من
-            Tailwind classes الديناميكية (التي لا تُولَّد إلا عند وجودها
-            في HTML وقت البناء).
-          */
+          sidebar.style.transform = 'translateX(0)';
+          if (backdrop) backdrop.style.display = 'block';
+          if (toggle)   toggle.setAttribute('aria-expanded', 'true');
           document.body.style.overflow = 'hidden';
         }
 
-        /** إغلاق السايدبار */
+        /* ── إخفاء السايدبار ── */
         function closeSidebar() {
-          sidebar.classList.add('translate-x-full');
-          backdrop.classList.add('hidden');
-          toggle.setAttribute('aria-expanded', 'false');
+          sidebar.style.transform = 'translateX(100%)';
+          if (backdrop) backdrop.style.display = 'none';
+          if (toggle)   toggle.setAttribute('aria-expanded', 'false');
           document.body.style.overflow = '';
         }
 
-        toggle.addEventListener('click', () => {
-          const isOpen = !sidebar.classList.contains('translate-x-full');
-          if (isOpen) closeSidebar();
-          else openSidebar();
-        });
-
-        if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
-        backdrop.addEventListener('click', closeSidebar);
-
-        /* إغلاق عند ضغط Escape (إلا لو كان الـ guide drawer مفتوحاً) */
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && !guideDrawer?.open) closeSidebar();
-        });
-
-        /*
-          مزامنة حالة السايدبار عند تغيير حجم النافذة.
-          - سطح مكتب (md+): السايدبار مرئي دائماً → نُزيل translate-x-full
-          - موبايل: نُعيد translate-x-full لو كانت النافذة صغُرت فجأة
-        */
-        const mql = window.matchMedia('(min-width: 768px)');
-
-        function syncSidebarToBreakpoint(e) {
-          if (e.matches) {
-            /* انتقلنا إلى سطح المكتب */
-            sidebar.classList.remove('translate-x-full');
-            backdrop.classList.add('hidden');
+        /* ── ضبط الحالة الأولية وعند تغيير الحجم ── */
+        function syncState() {
+          if (isDesktop()) {
+            sidebar.style.transform = 'translateX(0)';
+            if (backdrop) backdrop.style.display = 'none';
+            if (header)   header.style.display = 'none';
             document.body.style.overflow = '';
           } else {
-            /* رجعنا للموبايل: أخفِ السايدبار */
-            sidebar.classList.add('translate-x-full');
+            sidebar.style.transform = 'translateX(100%)';
+            if (backdrop) backdrop.style.display = 'none';
+            if (header)   header.style.display = 'flex';
+            document.body.style.overflow = '';
           }
         }
 
-        mql.addEventListener('change', syncSidebarToBreakpoint);
+        /* تطبيق الحالة الأولية فور تحميل الصفحة */
+        syncState();
+
+        /* ── أحداث الأزرار ── */
+        if (toggle) {
+          toggle.addEventListener('click', function () {
+            var isOpen = sidebar.style.transform === 'translateX(0px)' || sidebar.style.transform === 'translateX(0)';
+            if (isOpen) closeSidebar();
+            else openSidebar();
+          });
+        }
+
+        if (closeBtn) {
+          closeBtn.addEventListener('click', closeSidebar);
+        }
+
+        /* إغلاق بالنقر على الـ backdrop */
+        if (backdrop) {
+          backdrop.addEventListener('click', closeSidebar);
+        }
+
+        /* إغلاق بضغط Escape */
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') {
+            if (guideDrawer && guideDrawer.open) return;
+            if (!isDesktop()) closeSidebar();
+          }
+        });
+
+        /* إغلاق بالنقر على رابط داخل السايدبار (على الموبايل فقط) */
+        var sidebarLinks = sidebar.querySelectorAll('a');
+        sidebarLinks.forEach(function (link) {
+          link.addEventListener('click', function () {
+            if (!isDesktop()) closeSidebar();
+          });
+        });
+
+        /* ── مزامنة عند تغيير حجم النافذة أو اتجاهها ── */
+        var resizeTimer;
+        window.addEventListener('resize', function () {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(syncState, 150);
+        });
+
+        window.addEventListener('orientationchange', function () {
+          setTimeout(syncState, 400);
+        });
+
       })();
     </script>
   </body>
