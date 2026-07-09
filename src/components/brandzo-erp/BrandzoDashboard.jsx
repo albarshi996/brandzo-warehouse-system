@@ -200,6 +200,8 @@ const BrandzoDashboard = () => {
 
   return (
     <div className="text-right" dir="rtl">
+      {/* HIDDEN: System Overview */}
+      {/*
       <header className="mb-6 sm:mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-brand-navy text-center md:text-right">نظرة عامة على النظام</h1>
@@ -215,6 +217,7 @@ const BrandzoDashboard = () => {
           النماذج التشغيلية
         </a>
       </header>
+      */}
 
       {error && (
         <div
@@ -225,6 +228,8 @@ const BrandzoDashboard = () => {
         </div>
       )}
 
+      {/* HIDDEN: Inventory Overview */}
+      {/*
       <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
         <KpiCard
           icon="package"
@@ -279,109 +284,89 @@ const BrandzoDashboard = () => {
           neonColor="blue"
         />
       </div>
+      */}
 
-      <main className="mt-10">
-        <section className="rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-4 sm:p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <div className="flex-1 w-full">
-              <h2 className="text-lg sm:text-xl font-bold text-brand-navy text-center md:text-right">
-                نظرة عامة على المخزون
-              </h2>
-              <div className="mt-3 relative w-full md:max-w-md">
-                <span className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
-                  <Icon name="search" size={16} />
-                </span>
-                <input
-                  type="text"
-                  placeholder="البحث عبر SKU أو اسم الصنف..."
-                  className="block w-full pr-10 pl-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-brand-red focus:border-brand-red text-sm"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+      {/* What We Offer Section */}
+      <section className="mt-10 mb-8">
+        <div className="rounded-2xl bg-gradient-to-br from-brand-navy via-[#1a1a3e] to-[#0d0d2b] shadow-2xl border border-brand-red/20 p-6 sm:p-10 relative overflow-hidden">
+          {/* Glow orbs */}
+          <div className="absolute top-0 left-0 w-64 h-64 bg-brand-red/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 right-0 w-64 h-64 bg-brand-yellow/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10">
+            <h2 className="text-xl sm:text-2xl font-bold text-white text-center mb-2">
+              ضبط
+              <span className="block text-sm font-normal text-gray-400 mt-1">Brandzo Hub — Quality Gate</span>
+            </h2>
+            <div className="w-16 h-1 bg-brand-red mx-auto mb-8 rounded-full" />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-5 hover:border-brand-red/40 transition-all">
+                <div className="text-2xl mb-3">📋</div>
+                <h3 className="font-bold text-brand-red mb-2">نماذج ذكية إجبارية</h3>
+                <p className="text-sm text-gray-300">كل العمليات (إضافة مخزون، صرف، تحويل، ارتجاع، جرد) تمر أولاً عبر نماذجنا الذكية الإجبارية.</p>
               </div>
-              {showLowOnly && (
-                <p className="text-xs text-yellow-700 mt-2 font-semibold">
-                  عرض الأصناف ذات المخزون المنخفض فقط
-                </p>
-              )}
+              <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-5 hover:border-brand-yellow/40 transition-all">
+                <div className="text-2xl mb-3">⚡</div>
+                <h3 className="font-bold text-brand-yellow mb-2">تحقق منطقي آلي</h3>
+                <p className="text-sm text-gray-300">النظام يتحقق من المنطق التشغيلي (الصلاحيات، الحدود، الكميات، تواريخ الانتهاء 75%، التوصيات التلقائية).</p>
+              </div>
+              <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-5 hover:border-green-400/40 transition-all">
+                <div className="text-2xl mb-3">✅</div>
+                <h3 className="font-bold text-green-400 mb-2">وثيقة نظيفة موثقة</h3>
+                <p className="text-sm text-gray-300">في حال المطابقة → يُصدر النظام وثيقة نظيفة وموثقة جاهزة وخالية من أي خطأ لتكون المرجع الوحيد للإدخال في الـ ERP.</p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              {showLowOnly && (
-                <button
-                  type="button"
-                  onClick={() => setShowLowOnly(false)}
-                  className="px-3 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition-colors"
-                >
-                  عرض الكل
-                </button>
-              )}
-              <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-bold inline-flex items-center gap-1">
-                <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                تحديث لحظي
-              </span>
+
+            <div className="bg-white/5 backdrop-blur border border-brand-yellow/20 rounded-xl p-5">
+              <h3 className="font-bold text-brand-yellow mb-3 flex items-center gap-2">
+                <span>🔒</span> الميزة الحاسمة: تكاملي ومستقل — بوابة حماية للـ ERP
+              </h3>
+              <p className="text-sm text-gray-300 leading-relaxed">
+                Brandzo Hub لا يستبدل الـ ERP ولا يرتبط به برمجياً بشكل مباشر، بل يعمل كـ "بوابة عبور" وفلتر جودة صارم يسبقه.
+                نعزل أخطاء التشغيل تماماً عن النظام المحاسبي؛ مُدخل البيانات يستلم بيانات دقيقة 100%.
+                النظام يحتفظ بسجل تدقيق كامل ومستقل (Audit Trail) لضمان الامتثال.
+              </p>
             </div>
           </div>
-          <div className="overflow-x-auto w-full">
-            <table className="w-full text-right text-sm">
-              <thead className="bg-gray-50 text-gray-700">
-                <tr>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold whitespace-nowrap">SKU</th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold">الاسم (AR)</th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold hidden sm:table-cell">
-                    الفئة
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold whitespace-nowrap">الرصيد</th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-center">الحالة</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {tableLoading && (
-                  <>
-                    {[0, 1, 2].map((i) => (
-                      <tr key={`skel-${i}`}>
-                        {Array.from({ length: 5 }).map((__, j) => (
-                          <td key={j} className="px-4 sm:px-6 py-4">
-                            <span className="block h-4 bg-gray-100 rounded animate-pulse" />
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </>
-                )}
-                {!tableLoading && tableEmpty && (
-                  <EmptyRow
-                    message={
-                      showLowOnly
-                        ? 'لا توجد أصناف منخفضة المخزون حالياً.'
-                        : 'لا توجد أصناف بعد. ابدأ بإضافة صنف من شاشة "إدارة الأصناف".'
-                    }
-                  />
-                )}
-                {!tableLoading &&
-                  visibleItems.map((item) => (
-                    <tr key={item.sku} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 font-mono text-brand-red font-bold whitespace-nowrap">
-                        {item.sku}
-                      </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium">
-                        {item.nameAr || item.nameEn || '—'}
-                      </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 hidden sm:table-cell">
-                        {item.category || '—'}
-                      </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-lg whitespace-nowrap">
-                        {Number(item.balance) || 0}
-                      </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-center">
-                        <StatusPill balance={item.balance} minStock={item.minStock} />
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
+        </div>
+      </section>
+
+      {/* لوحة القوانين التشغيلية */}
+      <section className="mt-8 mb-8">
+        <div className="rounded-2xl bg-gradient-to-br from-[#0d0d2b] to-brand-navy shadow-2xl border border-white/10 p-6 sm:p-10 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-brand-yellow/5 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10">
+            <h2 className="text-xl sm:text-2xl font-bold text-white text-center mb-2">
+              القوانين التشغيلية
+              <span className="block text-sm font-normal text-gray-400 mt-1">Operational Compliance Rules</span>
+            </h2>
+            <div className="w-16 h-1 bg-brand-yellow mx-auto mb-8 rounded-full" />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                { icon: '📌', color: 'text-brand-red', border: 'border-brand-red/30', title: 'إجبارية التوثيق', text: 'منع حركة المخزون نهائياً دون استيفاء كافة الحقول الإجبارية في نماذج الإدخال الذكية. لا حركة بدون توثيق رقمي كامل.' },
+                { icon: '⏱️', color: 'text-orange-400', border: 'border-orange-400/30', title: 'عتبة الصلاحية', text: 'الرفض التلقائي عبر النظام لأي شحنة يقل عمرها الافتراضي المتبقي عن 75% عند الاستلام. امتثال صارم لا يقبل التفاوض.' },
+                { icon: '🌡️', color: 'text-blue-400', border: 'border-blue-400/30', title: 'نقاط التحكم الحرجة (CCPs)', text: 'التحقق الآلي من درجات الحرارة المدخلة: 4°م للمبرد، -18°م للمجمد. منطق معتمد بمعايير HACCP.' },
+                { icon: '🔄', color: 'text-green-400', border: 'border-green-400/30', title: 'أولوية الصرف — FEFO', text: 'توجيه عمليات الصرف آلياً بناءً على تواريخ الانتهاء الأقرب. تطبيق إلزامي لنظام FEFO — لا يمكن تجاوزه.' },
+                { icon: '📊', color: 'text-purple-400', border: 'border-purple-400/30', title: 'دقة البيانات — ABC', text: 'توجيه مهام الجرد الدوري الذكي عبر تصنيف ABC لضمان تطابق الأرصدة. الهدف: دقة مخزون 98.5% فأكثر.' },
+                { icon: '⚡', color: 'text-brand-yellow', border: 'border-brand-yellow/30', title: 'زمن الاستجابة', text: 'تسريع الدورة المستندية عبر أتمتة النماذج وتقليل وقت التدقيق اليدوي. وقت دورة تشغيلية يقل عن 4 ساعات.' },
+              ].map((rule, i) => (
+                <div key={i} className={`bg-white/5 backdrop-blur border ${rule.border} rounded-xl p-5 hover:bg-white/10 transition-all`}>
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl flex-shrink-0">{rule.icon}</span>
+                    <div>
+                      <h3 className={`font-bold ${rule.color} mb-1`}>{rule.title}</h3>
+                      <p className="text-sm text-gray-300 leading-relaxed">{rule.text}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
     </div>
   );
 };

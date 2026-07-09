@@ -12,6 +12,31 @@
             --gold: #DAAA3C; --gold-light: #FFD700; --orange: #E84820;
             --dark-burgundy: #1a0008; --shadow-glow: rgba(200, 30, 50, 0.45);
             --glass-bg: rgba(255, 255, 255, 0.07); --glass-border: rgba(255, 255, 255, 0.22);
+            --brandzo-light-red: #f15a5b;
+            --brandzo-dark-red: #7e2b2a;
+            --text-gray: #4a4a4a;
+        }
+        .brandzo-header {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; max-width: 1200px; margin: 0 auto 24px; background: #ffffff;
+            padding: 20px 0; border-radius: 12px;
+        }
+        .decor-side { display: flex; align-items: center; flex-grow: 1; }
+        .dark-bar { height: 28px; background-color: var(--brandzo-dark-red); flex-grow: 1; }
+        .light-blocks { display: flex; gap: 6px; margin: 0 15px; }
+        .light-blocks span { display: inline-block; width: 14px; height: 38px; background-color: var(--brandzo-light-red); }
+        .logo-wrapper { display: flex; align-items: center; gap: 12px; margin: 0 25px; direction: ltr; }
+        .logo-circle {
+            width: 85px; height: 85px; background-color: var(--brandzo-light-red);
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            color: #ffffff; font-size: 28px; font-weight: bold; font-family: Arial, sans-serif;
+        }
+        .logo-text { display: flex; flex-direction: column; justify-content: center; }
+        .logo-text h1 {
+            color: var(--brandzo-light-red); font-size: 38px; font-weight: 800;
+            margin: 0; line-height: 1; font-family: Arial, sans-serif; letter-spacing: -0.5px;
+        }
+        .logo-text p { color: var(--text-gray); font-size: 15px; margin: 4px 0 0 0; font-family: Arial, sans-serif; }
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -77,10 +102,14 @@
         .doc-id { font-family: monospace; color: var(--orange); font-weight: 700; }
         .print-btn { display: block; margin: 12px auto; padding: 10px 30px; background: var(--orange); color: #fff; border: none; font-family: 'Cairo', sans-serif; font-size: 1rem; font-weight: 700; cursor: pointer; letter-spacing: 1px; border-radius: 6px; box-shadow: 0 3px 12px rgba(200,40,20,0.4); transition: background 0.25s; }
         .print-btn:hover { background: #c13518; }
+
+        /* Excel button */
+        .excel-btn { display: block; margin: 12px auto; padding: 10px 30px; background: #16a34a; color: #fff; border: none; font-family: 'Cairo', sans-serif; font-size: 1rem; font-weight: 700; cursor: pointer; border-radius: 6px; box-shadow: 0 3px 12px rgba(22,163,74,0.4); transition: background 0.25s; }
+        .excel-btn:hover { background: #15803d; }
         .brand-footer { text-align: center; padding: 20px 16px 8px; margin-top: 14px; width: 100%; }
         .brand-footer p { font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 1.1rem; color: #FFD700; text-shadow: 0 0 12px rgba(255,215,0,0.35); }
         @media print {
-            .print-btn { display: none !important; }
+            .print-btn, .excel-btn { display: none !important; }
             body { background: #fff !important; padding: 5px; }
             .form-wrap { box-shadow: none; border: 2px solid #E84820 !important; }
             .glass-circle { background: rgba(220,40,50,0.25); border: 2px solid #c41e3a; box-shadow: none; }
@@ -141,27 +170,165 @@
             .form-top-nav a { width: 100% !important; text-align: center !important; margin: 0 !important; }
         }
 
-    </style>
+@media (max-width: 767px) {
+  body {
+    padding: 8px 4px 32px;
+  }
+  .page-wrapper {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 4px;
+    align-items: stretch;
+  }
+  .form-wrap {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
+  }
+  .brandzo-header {
+    flex-wrap: wrap;
+    padding: 12px 8px;
+    gap: 8px;
+  }
+  .logo-circle {
+    width: 56px !important;
+    height: 56px !important;
+    font-size: 18px !important;
+  }
+  .logo-text h1 {
+    font-size: 22px !important;
+  }
+  .table-scroll-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+  table.form-table {
+    min-width: 600px;
+  }
+}
+            /* ═══════════════════════════════════════════════════════
+           BRANDZO UNIVERSAL PRINT OVERRIDE — Landscape + Black
+           Applied to ALL forms. Do NOT remove.
+           ═══════════════════════════════════════════════════════ */
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 10mm 8mm;
+            }
+            .print-btn, .excel-btn, .no-print,
+            .scan-btn, .scan-modal, .qc-controls,
+            .form-top-nav { display: none !important; }
+
+            body {
+                background: #fff !important;
+                color: #1a1a1a !important;
+                padding: 0 !important;
+                font-size: 10.5px !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            body::before { display: none !important; }
+            .page-wrapper { max-width: 100% !important; padding: 0 !important; }
+            .form-wrap {
+                max-width: 100% !important;
+                box-shadow: none !important;
+                border: 1.5px solid #c41e3a !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+            }
+            .luxury-header, .brandzo-header {
+                background: #f5f5f5 !important;
+                box-shadow: none !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                padding: 8px 12px !important;
+            }
+            .form-header {
+                background: #f5f5f5 !important;
+                border-bottom: 1.5px solid #c41e3a !important;
+            }
+            .form-header .logo,
+            .form-header .form-title,
+            .form-header .form-meta { color: #1a1a1a !important; }
+            .glass-circle {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background: rgba(196,30,58,0.12) !important;
+                border: 1.5px solid #c41e3a !important;
+                box-shadow: none !important;
+                width: 60px !important;
+                height: 60px !important;
+                font-size: 1.3rem !important;
+                color: #1a1a1a !important;
+            }
+            .glass-circle::after { display: none !important; }
+            .brand-name { color: #c41e3a !important; text-shadow: none !important; font-size: 1.6rem !important; }
+            .arabic-title-section .main-arabic-title { color: #1a1a1a !important; text-shadow: none !important; }
+            .brand-footer p { color: #1a1a1a !important; text-shadow: none !important; }
+            .gold-separator { border-bottom: 1.5px solid #DAAA3C !important; opacity: 1 !important; }
+            .arabic-title-section .emoji-badge {
+                background: #fff !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                border: 1px solid #DAAA3C !important;
+                box-shadow: none !important;
+            }
+            .field-group label, .sign-box .sign-label { color: #1a1a1a !important; }
+            .section-title {
+                background: #c41e3a !important;
+                color: #fff !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            table.form-table th {
+                background: #2d0006 !important;
+                color: #fff !important;
+                border: 1px solid #333 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            table.form-table td {
+                background: #fff !important;
+                color: #1a1a1a !important;
+                border: 1px solid #555 !important;
+            }
+            tr { page-break-inside: avoid !important; }
+            table { page-break-inside: auto !important; }
+            td { vertical-align: top !important; page-break-inside: avoid !important; }
+        }
+</style>
 </head>
 <body>
 
 <div class="no-print form-top-nav" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; padding: 0 16px; margin-bottom: 16px;">
     <a href="../dashboard/forms/" style="padding: 10px 20px; background: #c0392b; color: white; text-decoration: none; border-radius: 6px; font-weight: 700;">🏠 لوحة التحكم</a>
-    <a href="../Brandzo_Operational_Guide.html" style="padding: 10px 20px; background: #1B3A6B; color: white; text-decoration: none; border-radius: 6px; font-weight: 700;">📘 الدليل التشغيلي</a>
 </div>
 
 <div class="page-wrapper">
-    <header class="luxury-header">
+<header class="brandzo-header">
+    <div class="decor-side">
+        <div class="dark-bar"></div>
+        <div class="light-blocks"><span></span><span></span><span></span></div>
+    </div>
+    <div class="logo-wrapper">
+        <div class="logo-circle">BFP</div>
+        <div class="logo-text">
+            <h1>Brandzo</h1>
+            <p>Franchise Partners</p>
+        </div>
+    </div>
+    <div class="decor-side">
+        <div class="light-blocks"><span></span><span></span><span></span></div>
+        <div class="dark-bar"></div>
+    </div>
+</header>
         <div class="glass-circle">BFP</div>
         <span class="brand-name">Brandzo</span>
-    </header>
-    <div class="gold-separator"></div>
-    <div class="arabic-title-section">
-        <span class="emoji-badge">🏷️</span><span class="emoji-badge">📍</span><span class="emoji-badge">🏢</span>
-        <span class="main-arabic-title">محضر اجتماع الصباح اليومي — Daily Huddle Meeting Template</span>
-        <span class="emoji-badge">📦</span><span class="emoji-badge">🔍</span><span class="emoji-badge">📋</span>
+    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <button class="print-btn no-print" onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
+        <button class="excel-btn no-print" onclick="exportToExcel()">📊 تصدير إلى إكسيل | Export to Excel</button>
     </div>
-    <button class="print-btn no-print" onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
     <div class="form-wrap">
         <div class="form-header">
             <div class="logo">⚡ BRANDZO FRANCHISE PARTNERS</div>
@@ -193,7 +360,8 @@
             </div>
 
             <div class="section-title">📊 ثانياً: أداء الأمس (3 دقائق) — Yesterday's KPIs</div>
-            <table class="form-table">
+            <div class="table-scroll-wrapper">
+<table class="form-table">
                 <thead>
                     <tr><th>المؤشر (KPI)</th><th>الهدف</th><th>قيمة أمس</th><th>حالة الأداء</th></tr>
                 </thead>
@@ -206,6 +374,7 @@
                     <tr><td>عدد الشحنات المُرسَلة في الموعد</td><td>100%</td><td><input type="text" class="form-input"></td><td><input type="text" class="form-input"></td></tr>
                 </tbody>
             </table>
+</div>
 
             <div class="section-title">🚛 ثالثاً: تحديات اليوم (5 دقائق) — Today's Priorities</div>
             <div class="fields-grid two">
@@ -239,7 +408,10 @@
 
         </div>
     </div>
-    <button class="print-btn no-print" onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
+    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <button class="print-btn no-print" onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
+        <button class="excel-btn no-print" onclick="exportToExcel()">📊 تصدير إلى إكسيل | Export to Excel</button>
+    </div>
     <footer class="brand-footer"><p>إعداد محمد البرشي</p></footer>
 </div>
 
@@ -629,6 +801,7 @@
                 showLoading();
                 modal.classList.add('is-open');
                 modal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
                 loadLib()
                     .then(probeCamera)
                     .then(startScanner)
@@ -653,12 +826,14 @@
             }
 
             function closeModal() {
-                modal.classList.remove('is-open');
-                modal.setAttribute('aria-hidden', 'true');
-                teardownScanner();
-                viewport.innerHTML = '';
-                targetInput = null;
-                scanCompleted = false;
+                teardownScanner().then(function() {
+                    modal.classList.remove('is-open');
+                    modal.setAttribute('aria-hidden', 'true');
+                    viewport.innerHTML = '';
+                    targetInput = null;
+                    scanCompleted = false;
+                    document.body.style.overflow = '';
+                });
             }
 
             /**
@@ -699,20 +874,17 @@
                     (clean || '—') +
                     '</div></div>';
 
-                // 3) Stop the camera and close the modal after a brief
-                //    flash. Teardown is async, so we do it in parallel
-                //    with the visual confirmation.
-                teardownScanner();
-                setTimeout(function () {
+                // 3) أوقف الكاميرا أولاً ثم أغلق — بشكل متزامن وآمن
+                teardownScanner().then(function() {
                     modal.classList.remove('is-open');
                     modal.setAttribute('aria-hidden', 'true');
                     viewport.innerHTML = '';
+                    targetInput = null;
+                    scanCompleted = false;
                     if (input) {
                         try { input.focus(); } catch (e) { /* noop */ }
                     }
-                    targetInput = null;
-                    scanCompleted = false;
-                }, 700);
+                });
             }
 
             cancelBtn.addEventListener('click', closeModal);
@@ -732,5 +904,63 @@
             });
         })();
     </script>
+
+<script>
+function exportToExcel() {
+    var script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    script.onload = function () {
+        var dateEl = document.querySelector('input[type="date"]');
+        var date = dateEl ? dateEl.value || new Date().toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+        var titleEl = document.querySelector('.form-title, .main-arabic-title, h1');
+        var title = titleEl ? titleEl.textContent.trim() : document.title;
+
+        var rows = [['النموذج', title], ['التاريخ', date], []];
+
+        document.querySelectorAll('.field-group').forEach(function (group) {
+            var label = group.querySelector('label');
+            var input = group.querySelector('input, textarea, select');
+            if (label && input) {
+                rows.push([label.textContent.trim(), input.value || '—']);
+            }
+        });
+
+        document.querySelectorAll('table').forEach(function (table) {
+            rows.push([]);
+            var headers = [];
+            table.querySelectorAll('thead th').forEach(function (th) {
+                headers.push(th.textContent.trim());
+            });
+            if (headers.length) rows.push(headers);
+            table.querySelectorAll('tbody tr').forEach(function (tr) {
+                var rowData = [];
+                tr.querySelectorAll('td').forEach(function (td) {
+                    var inp = td.querySelector('input, select, textarea');
+                    rowData.push(inp ? (inp.value || '') : td.textContent.trim());
+                });
+                rows.push(rowData);
+            });
+        });
+
+        document.querySelectorAll('.summary-grid .field-group, .count-summary .field-group, .form-footer .field-group').forEach(function (group) {
+            var label = group.querySelector('label');
+            var input = group.querySelector('input, textarea, select');
+            if (label && input) {
+                rows.push([label.textContent.trim(), input.value || '—']);
+            }
+        });
+
+        var wb = XLSX.utils.book_new();
+        var ws = XLSX.utils.aoa_to_sheet(rows);
+        ws['!cols'] = Array(15).fill({ wch: 22 });
+        XLSX.utils.book_append_sheet(wb, ws, 'Export');
+        var safeTitle = title.replace(/[\/:*?"<>|]/g, '').replace(/\s+/g, '_').slice(0, 40);
+        const fileName = 'Brandzo_' + safeTitle + '_' + date + '.xlsx';\        const userFileName = prompt("أدخل اسم الملف قبل الحفظ:", fileName);\        if (userFileName === null) return;\        if (userFileName.trim() !== '') fileName = userFileName.trim().endsWith('.xlsx') ? userFileName.trim() : userFileName.trim() + '.xlsx';
+        XLSX.writeFile(wb, fileName);
+    };
+    script.onerror = function () { alert('Failed to load Excel library. Check your internet connection.'); };
+    document.head.appendChild(script);
+}
+</script>
 <script src="../formUtils.js"></script></body>
 </html>
